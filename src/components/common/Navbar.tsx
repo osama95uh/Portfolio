@@ -1,0 +1,184 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { navLinks } from "@/src/data/navLinks";
+import {
+  HiOutlineHome,
+  HiOutlineUser,
+  HiOutlineFolderOpen,
+  HiOutlineMail,
+  HiOutlineMenu,
+  HiOutlineX,
+} from "react-icons/hi";
+import { gsap } from "gsap";
+
+const iconMap: Record<string, React.ReactNode> = {
+  Home: <HiOutlineHome className="w-6 h-6" />,
+  About: <HiOutlineUser className="w-6 h-6" />,
+  Projects: <HiOutlineFolderOpen className="w-6 h-6" />,
+  Contact: <HiOutlineMail className="w-6 h-6" />,
+};
+
+export default function Navbar() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
+  const blobRef = useRef<HTMLDivElement>(null);
+
+  // Initialize visibility logic safely after hydration to avoid mismatch
+  useEffect(() => {
+    // A small timeout ensures this doesn't trigger synchronous cascading render warnings
+    const timer = setTimeout(() => {
+      if (window.innerWidth >= 1024) {
+        setIsVisible(true);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // GSAP Blob Animation for the active item
+  useEffect(() => {
+    if (!blobRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.to(blobRef.current, {
+        borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
+        duration: 4, // slower, subtle feel
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+      });
+
+      gsap.to(blobRef.current, {
+        rotation: 360,
+        duration: 30, // slow rotation
+        ease: "none",
+        repeat: -1,
+        transformOrigin: "center",
+      });
+    }, blobRef);
+
+    return () => ctx.revert();
+  }, [activeSection, isVisible]);
+
+  // Active section scroll tracking
+  useEffect(() => {
+    const handleScroll = () => {
+      let current = "home";
+      // Reverse through sections to find the first one that is visible at top of viewport
+      const sections = [...navLinks].reverse();
+
+      for (const { href } of sections) {
+        const id = href.replace("#", "");
+        const element = document.getElementById(id);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          // if top of element is within the top half of screen, consider it active
+          if (rect.top <= window.innerHeight * 0.45) {
+            current = id;
+            break;
+          }
+        }
+      }
+      setActiveSection(current);
+    };
+
+    // Use passive listener for better scroll performance
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Trigger immediately to set initial state
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <>
+      {/* Floating Toggle Button (Visible when navbar is hidden) */}
+      <button
+        onClick={() => setIsVisible(true)}
+        className={`fixed left-1 top-[27%] -translate-y-1/2 z-40 p-3 rounded-full bg-black/60 border border-emerald-900/50 text-emerald-400 hover:bg-emerald-900/40 hover:scale-110 backdrop-blur-md transition-all duration-300 shadow-lg shadow-black/50 ${
+          isVisible
+            ? "opacity-0 pointer-events-none scale-50"
+            : "opacity-100 scale-100"
+        }`}
+        aria-label="Open Navigation"
+      >
+        <HiOutlineMenu className="w-5 h-5" />
+      </button>
+
+      {/* Main Vertical Navbar - Changed from bg-black/80 to glass blur */}
+      <nav
+        className={`fixed left-0 top-1/2 -translate-y-1/2 w-20 backdrop-blur-xl bg-white/5 border-y border-r border-emerald-900/40 rounded-r-3xl z-50 flex flex-col items-center py-8 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-2xl shadow-emerald-900/20 ${
+          isVisible ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Close Button */}
+        <button
+          onClick={() => setIsVisible(false)}
+          className="absolute -right-1 -top-3 p-1.5 bg-black/60 backdrop-blur-sm border border-emerald-500/30 rounded-full text-gray-400 hover:text-emerald-300 hover:scale-110 hover:bg-emerald-900/80 transition-all z-10"
+          aria-label="Close Navigation"
+        >
+          <HiOutlineX className="w-4 h-4" />
+        </button>
+
+        {/* Logo */}
+        <Link
+          href="/#home"
+          onClick={() => window.innerWidth < 1024 && setIsVisible(false)}
+          className="mb-8 group flex items-center justify-center relative w-10 h-10"
+        >
+          <Image
+            src="/Logo.png"
+            alt="Tandith Logo"
+            fill
+            className="object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+            sizes="40px"
+          />
+        </Link>
+
+        {/* Divider */}
+        <div className="w-8 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent mb-6" />
+
+        {/* Links */}
+        <div className="flex flex-col gap-4 w-full items-center relative flex-1">
+          {navLinks.map(({ label, href }) => {
+            const id = href.replace("#", "");
+            const isActive = activeSection === id;
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => window.innerWidth < 1024 && setIsVisible(false)}
+                className={`group relative flex flex-col items-center justify-center p-1.5 w-14 h-14 transition-all duration-300 rounded-full z-10 ${
+                  isActive
+                    ? "text-emerald-50"
+                    : "text-gray-400 hover:text-emerald-300 hover:scale-105"
+                }`}
+              >
+                {/* Active Blob Background */}
+                {isActive && (
+                  <div
+                    ref={blobRef}
+                    className="absolute inset-[6px] bg-gradient-to-tr from-emerald-600/40 to-teal-400/20 shadow-[0_0_12px_rgba(16,185,129,0.2)] backdrop-blur-sm -z-10"
+                    style={{
+                      borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%",
+                    }}
+                  />
+                )}
+
+                <div className="relative z-10 flex flex-col items-center gap-1 transition-transform duration-300">
+                  {iconMap[label] || <HiOutlineHome className="w-5 h-5" />}
+                  <span
+                    className={`text-[10px] tracking-wider font-medium transition-opacity duration-300 ${isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"}`}
+                  >
+                    {label}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
+  );
+}
