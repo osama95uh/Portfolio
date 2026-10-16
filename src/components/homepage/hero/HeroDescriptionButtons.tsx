@@ -58,7 +58,7 @@ const HeroDesButtons = () => {
         {/* Resume download button temporarily disabled.
         <SheenCard>
           <Link
-            href="/Sadnan_FullStack_Developer_CV.pdf"
+            href="/Siam_Khan_Resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="relative flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-emerald-600/20 border border-emerald-700 text-emerald-300 hover:bg-emerald-600/30 transition-all duration-300 font-medium text-sm overflow-hidden group"

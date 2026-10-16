@@ -6,7 +6,7 @@ const LINES = [
   { prompt: "~", cmd: "boot --kernel portfolio.v2" },
   { prompt: "~", cmd: "load modules [auth, db, ui]" },
   { prompt: "~", cmd: "npm run dev" },
-  { prompt: "~", cmd: "ping sadnan.dev" },
+  { prompt: "~", cmd: "ping siamkhan.dev" },
 ];
 
 const GRANT_LINE = "✔ ACCESS GRANTED — welcome, user.";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { navLinks } from "@/src/data/navLinks";
@@ -12,7 +12,6 @@ import {
   HiOutlineMenu,
   HiOutlineX,
 } from "react-icons/hi";
-import { gsap } from "gsap";
 
 const iconMap: Record<string, React.ReactNode> = {
   Home: <HiOutlineHome className="w-6 h-6" />,
@@ -22,9 +21,8 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 export default function Navbar() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
-  const blobRef = useRef<HTMLDivElement>(null);
 
   // Initialize visibility logic safely after hydration to avoid mismatch
   useEffect(() => {
@@ -37,57 +35,28 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, []);
 
-  // GSAP Blob Animation for the active item
+  // Active section tracking with IntersectionObserver (zero layout thrashing)
   useEffect(() => {
-    if (!blobRef.current) return;
-
-    const ctx = gsap.context(() => {
-      gsap.to(blobRef.current, {
-        borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
-        duration: 4, // slower, subtle feel
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-      });
-
-      gsap.to(blobRef.current, {
-        rotation: 360,
-        duration: 30, // slow rotation
-        ease: "none",
-        repeat: -1,
-        transformOrigin: "center",
-      });
-    }, blobRef);
-
-    return () => ctx.revert();
-  }, [activeSection, isVisible]);
-
-  // Active section scroll tracking
-  useEffect(() => {
-    const handleScroll = () => {
-      let current = "home";
-      // Reverse through sections to find the first one that is visible at top of viewport
-      const sections = [...navLinks].reverse();
-
-      for (const { href } of sections) {
-        const id = href.replace("#", "");
-        const element = document.getElementById(id);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          // if top of element is within the top half of screen, consider it active
-          if (rect.top <= window.innerHeight * 0.45) {
-            current = id;
-            break;
-          }
-        }
+    const observerCallback: IntersectionObserverCallback = (entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting);
+      if (visible.length > 0) {
+        visible.sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top));
+        setActiveSection(visible[0].target.id);
       }
-      setActiveSection(current);
     };
 
-    // Use passive listener for better scroll performance
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Trigger immediately to set initial state
-    return () => window.removeEventListener("scroll", handleScroll);
+    const observer = new IntersectionObserver(observerCallback, {
+      rootMargin: "-15% 0px -35% 0px",
+      threshold: [0, 0.2, 0.5],
+    });
+
+    navLinks.forEach(({ href }) => {
+      const id = href.replace("#", "");
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -158,11 +127,7 @@ export default function Navbar() {
                 {/* Active Blob Background */}
                 {isActive && (
                   <div
-                    ref={blobRef}
-                    className="absolute inset-[6px] bg-gradient-to-tr from-emerald-600/40 to-teal-400/20 shadow-[0_0_12px_rgba(16,185,129,0.2)] backdrop-blur-sm -z-10"
-                    style={{
-                      borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%",
-                    }}
+                    className="absolute inset-[6px] bg-gradient-to-tr from-emerald-600/40 to-teal-400/20 shadow-[0_0_12px_rgba(16,185,129,0.2)] backdrop-blur-sm -z-10 animate-nav-blob"
                   />
                 )}
 

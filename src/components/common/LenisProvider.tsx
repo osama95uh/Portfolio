@@ -1,7 +1,31 @@
 "use client";
 
-import { ReactLenis } from "lenis/react";
+import { ReactLenis, useLenis } from "lenis/react";
 import { useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
+function LenisScrollSync() {
+  const lenis = useLenis();
+
+  useEffect(() => {
+    if (!lenis) return;
+    const onScroll = () => {
+      ScrollTrigger.update();
+    };
+    lenis.on("scroll", onScroll);
+    // Ensure triggers measure correctly once smooth scroll is ready
+    const t = setTimeout(() => ScrollTrigger.refresh(), 100);
+    return () => {
+      lenis.off("scroll", onScroll);
+      clearTimeout(t);
+    };
+  }, [lenis]);
+
+  return null;
+}
 
 export default function LenisProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -23,6 +47,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
         infinite: false,
       }}
     >
+      <LenisScrollSync />
       {children}
     </ReactLenis>
   );

@@ -1,0 +1,12 @@
+{
+  "name": "Siam Khan NOC",
+  "short_name": "SiamKhan NOC",
+  "description": "Portfolio of Siam Khan, Network Security Analyst.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#10b981",
+  "icons": [
+    { "src": "/Logo.png", "sizes": "170x141", "type": "image/png" }
+  ]
+}

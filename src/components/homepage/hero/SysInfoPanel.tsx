@@ -1,24 +1,75 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { activityDotsGenerator, dotColors, skills, stats } from "@/src/data/homepageData/HeroData";
+import { useEffect, useRef, useState, useMemo } from "react";
+import { activityDotsGenerator, dotColors, skills } from "@/src/data/homepageData/HeroData";
 import { useClock, useUpTime } from "@/src/hooks/homepageHooks/HeroHooks";
 import { useLoaderDone } from "../../common/LoaderWrapper";
 import gsap from "gsap";
 
+interface TelemetryData {
+  maskedIp: string;
+  country: string;
+  city: string;
+  isp: string;
+  protocol: string;
+  securityStatus: string;
+}
+
+interface GitHubData {
+  publicRepos: number;
+  totalCommits: number;
+  activityDots: number[];
+}
+
 export function SysInfoPanel() {
- 
   const panelRef = useRef<HTMLDivElement>(null);
   const loaderDone = useLoaderDone();
-  const time=useClock();
+  const time = useClock();
   const uptime = useUpTime();
-  
+  const defaultDots = useMemo(() => activityDotsGenerator(), []);
+
+  const [telemetry, setTelemetry] = useState<TelemetryData | null>(null);
+  const [gitHubData, setGitHubData] = useState<GitHubData | null>(null);
+
+  // Ingest visitor telemetry and GitHub data
+  useEffect(() => {
+    // Telemetry fetch
+    fetch("/api/telemetry")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setTelemetry({
+            maskedIp: data.maskedIp,
+            country: data.country,
+            city: data.city,
+            isp: data.isp,
+            protocol: data.protocol,
+            securityStatus: data.securityStatus,
+          });
+        }
+      })
+      .catch((e) => console.warn("Telemetry fetch fallback:", e));
+
+    // GitHub live sync
+    fetch("/api/github")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setGitHubData({
+            publicRepos: data.publicRepos,
+            totalCommits: data.totalCommits,
+            activityDots: data.activityDots,
+          });
+        }
+      })
+      .catch((e) => console.warn("GitHub fetch fallback:", e));
+  }, []);
 
   useEffect(() => {
     if (!loaderDone) return;
     gsap.fromTo(
       panelRef.current,
       { opacity: 0, x: 40 },
-      { opacity: 1, x: 0, duration: 0.9, ease: "power3.out", delay: 0.4 },
+      { opacity: 1, x: 0, duration: 0.9, ease: "power3.out", delay: 0.4 }
     );
   }, [loaderDone]);
 
@@ -32,7 +83,6 @@ export function SysInfoPanel() {
     const sec = (s % 60).toString().padStart(2, "0");
     return `${h}:${m}:${sec}`;
   };
-
 
   return (
     <div ref={panelRef} className="opacity-0 w-full font-mono text-xs">
@@ -86,6 +136,24 @@ export function SysInfoPanel() {
                 <span className="text-emerald-300">Monitoring Traffic</span>
               </span>
             </div>
+
+            {/* Live Visitor Ingested Telemetry */}
+            {telemetry && (
+              <>
+                <div className="flex gap-2 pt-1 border-t border-emerald-500/10">
+                  <span className="text-emerald-500 w-16 shrink-0">Node IP</span>
+                  <span className="text-emerald-300 font-bold">{telemetry.maskedIp}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-emerald-500 w-16 shrink-0">Location</span>
+                  <span className="truncate">{telemetry.city ? `${telemetry.city}, ` : ""}{telemetry.country}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-emerald-500 w-16 shrink-0">Security</span>
+                  <span className="text-emerald-300">{telemetry.securityStatus} • {telemetry.protocol}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -113,12 +181,19 @@ export function SysInfoPanel() {
         {/* Divider */}
         <div className="border-t border-emerald-500/20" />
 
-        {/* Activity Grid */}
+        {/* Activity Grid (Live GitHub Sync) */}
         <div>
-          <p className="text-emerald-400 mb-3">$ git log --activity</p>
-          <div className="ml-4">
-            <div className="grid grid-cols-[repeat(35,1fr)] gap-[3px]">
-              {activityDotsGenerator().map((level, i) => (
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-emerald-400">$ git log --activity</p>
+            {gitHubData && (
+              <span className="text-[10px] text-emerald-500/60 font-mono">
+                synced with @{gitHubData.publicRepos ? "osama95uh" : ""}
+              </span>
+            )}
+          </div>
+          <div className="ml-4 overflow-x-auto pb-1">
+            <div className="grid min-w-[560px] grid-cols-[repeat(35,1fr)] gap-[3px]">
+              {(gitHubData?.activityDots || defaultDots).map((level, i) => (
                 <div
                   key={i}
                   className={`aspect-square rounded-[2px] ${dotColors[level]}`}
@@ -135,11 +210,21 @@ export function SysInfoPanel() {
         {/* Divider */}
         <div className="border-t border-emerald-500/20" />
 
-        {/* Stats Row */}
+        {/* Stats Row (Dynamic GitHub Repos & Commits) */}
         <div>
           <p className="text-emerald-400 mb-3">$ stats --projects</p>
           <div className="ml-4 grid grid-cols-3 gap-3">
-            {stats.map((stat) => (
+            {[
+              {
+                label: "Projects",
+                value: gitHubData ? `${gitHubData.publicRepos}+` : "3+",
+              },
+              {
+                label: "Commits",
+                value: gitHubData ? `${gitHubData.totalCommits}+` : "25+",
+              },
+              { label: "YoE", value: "1yr" },
+            ].map((stat) => (
               <div
                 key={stat.label}
                 className="bg-emerald-500/5 border border-emerald-500/20 rounded-md p-2 text-center"

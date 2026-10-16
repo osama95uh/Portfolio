@@ -21,7 +21,7 @@ export default function TimelineSection() {
 
   return (
     <>
-          <div className="mt-150 md:mt-0"></div>
+          <div className="mt-12 md:mt-0"></div>
     <div ref={containerRef} className="max-w-7xl mx-auto ">
       <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />
       <Timeline activeTab={activeTab} />

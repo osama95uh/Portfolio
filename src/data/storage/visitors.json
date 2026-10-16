@@ -1,0 +1,21 @@
+[
+  {
+    "ip": "127.0.0.1",
+    "maskedIp": "127.0.0.1 (Local Node)",
+    "country": "Local Network",
+    "countryCode": "BD",
+    "city": "Localhost",
+    "region": "Internal",
+    "isp": "Loopback / LAN",
+    "asn": "AS0 Private Network",
+    "protocol": "HTTP/2",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "browser": "Chrome",
+    "os": "Linux",
+    "device": "Desktop",
+    "securityStatus": "INTERNAL",
+    "firstVisited": "2026-10-16T04:51:32.823Z",
+    "lastVisited": "2026-10-16T04:51:32.823Z",
+    "visitCount": 1
+  }
+]

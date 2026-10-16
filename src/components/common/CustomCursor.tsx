@@ -11,6 +11,8 @@ export default function CustomCursor() {
 
     const cursor = cursorRef.current;
     let animationFrame = 0;
+    let isVisible = false;
+    let isInteractive = false;
 
     const moveCursor = (event: PointerEvent) => {
       if (event.pointerType !== "mouse") return;
@@ -18,20 +20,28 @@ export default function CustomCursor() {
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(() => {
         cursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0) translate(-50%, -50%)`;
-        cursor.classList.add("is-visible");
+        if (!isVisible) {
+          cursor.classList.add("is-visible");
+          isVisible = true;
+        }
       });
     };
 
     const updateInteractiveState = (event: PointerEvent) => {
       if (!(event.target instanceof Element)) return;
-      cursor.classList.toggle(
-        "is-interactive",
-        Boolean(event.target.closest("a, button, input, textarea, select, label, [role='button']"))
+      const targetIsInteractive = Boolean(
+        event.target.closest("a, button, input, textarea, select, label, [role='button']")
       );
+      if (targetIsInteractive !== isInteractive) {
+        cursor.classList.toggle("is-interactive", targetIsInteractive);
+        isInteractive = targetIsInteractive;
+      }
     };
 
     const hideCursor = () => {
       cursor.classList.remove("is-visible", "is-interactive", "is-pressed");
+      isVisible = false;
+      isInteractive = false;
     };
     const pressCursor = () => cursor.classList.add("is-pressed");
     const releaseCursor = () => cursor.classList.remove("is-pressed");

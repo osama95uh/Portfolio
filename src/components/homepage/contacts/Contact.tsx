@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { HiOutlineMail } from "react-icons/hi";
 import { FaDiscord, FaFacebook, FaGithub } from "react-icons/fa";
@@ -70,13 +71,13 @@ export default function Contact() {
       <div className="absolute bottom-8 left-8 text-3xl font-mono text-emerald-500/10 font-bold pointer-events-none">{'/*'}</div>
       <div className="absolute bottom-8 right-8 text-3xl font-mono text-emerald-500/10 font-bold pointer-events-none">{'*/'}</div>
 
-      {/* Glows */}
+      {/* Ambient Glows (GPU radial gradient without expensive blur filters) */}
       <div
-        className="absolute bottom-0 left-0 w-[500px] h-[400px] bg-emerald-500/10 blur-[130px] rounded-full pointer-events-none"
+        className="absolute bottom-0 left-0 w-[500px] h-[400px] bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12)_0%,rgba(16,185,129,0.02)_50%,transparent_70%)] pointer-events-none"
         style={{ marginRight: "calc(50% - 50vw)" }}
       />
       <div
-        className="absolute bottom-0 right-0 w-[500px] h-[400px] bg-emerald-500/10 blur-[130px] rounded-full pointer-events-none"
+        className="absolute bottom-0 right-0 w-[500px] h-[400px] bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12)_0%,rgba(16,185,129,0.02)_50%,transparent_70%)] pointer-events-none"
         style={{ marginRight: "calc(50% - 50vw)" }}
       />
 
@@ -193,7 +194,13 @@ export default function Contact() {
               <div className="flex gap-4 text-[10px] font-mono text-gray-600">
                 <span>© {new Date().getFullYear()}</span>
                 <span>|</span>
-                <span>SECURE_SHELL_v2.0</span>
+                <Link
+                  href="/admin"
+                  className="hover:text-emerald-400 hover:underline transition-colors cursor-pointer"
+                  title="NOC Command Center (Admin)"
+                >
+                  SECURE_SHELL_v2.0
+                </Link>
                 <span>|</span>
                 <span className="text-emerald-500/50">ENCRYPTED_CONNECTION</span>
               </div>

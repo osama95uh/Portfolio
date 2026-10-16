@@ -1,4 +1,5 @@
-import { projects, type Project } from "@/src/data/projects";
+import { projects as defaultProjects, type Project } from "@/src/data/projects";
+import { getProjects } from "@/src/lib/db";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,7 +10,8 @@ export default async function ProjectDetails({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const project: Project | undefined = projects.find((p) => p.id === id);
+  const projectList: Project[] = await getProjects().catch(() => defaultProjects);
+  const project: Project | undefined = projectList.find((p) => p.id === id);
 
   if (!project) {
     notFound();

@@ -34,8 +34,8 @@ export const activityDotsGenerator = () => {
 };
 
 export const stats = [
-  { label: "Projects", value: "1" },
-  { label: "Commits", value: "9+" },
+  { label: "Projects", value: "3+" },
+  { label: "Commits", value: "5" },
   { label: "YoE", value: "1yr" },
 ];
 

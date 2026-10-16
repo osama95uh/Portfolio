@@ -7,6 +7,13 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig: NextConfig = {
   /* config options here */
+  images: {
+    // Allow project images pasted from any online URL in the admin panel.
+    remotePatterns: [
+      { protocol: "https", hostname: "**" },
+      { protocol: "http", hostname: "**" },
+    ],
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);

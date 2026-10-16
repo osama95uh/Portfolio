@@ -18,34 +18,64 @@ export default function LogoLoop({
   gap?: number;
   pauseOnHover?: boolean;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const positionRef = useRef(0);       // use ref not state — no re-render
+  const positionRef = useRef(0);
   const pausedRef = useRef(false);
   const rafRef = useRef<number>(0);
+  const isVisibleRef = useRef(false);
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track) return;
+    const container = containerRef.current;
+    if (!track || !container) return;
+
+    let halfWidth = track.scrollWidth / 3;
+
+    const measureWidth = () => {
+      if (track) {
+        halfWidth = track.scrollWidth / 3;
+      }
+    };
+    window.addEventListener("resize", measureWidth, { passive: true });
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && !rafRef.current) {
+          rafRef.current = requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
 
     const animate = () => {
-      if (!track) return;
-
-      const halfWidth = track.scrollWidth / 2;
-
-      if (!pausedRef.current) {
-        positionRef.current = (positionRef.current + speed * 0.01) % halfWidth;
+      if (!isVisibleRef.current) {
+        rafRef.current = 0;
+        return;
       }
 
-      track.style.transform = `translateX(-${positionRef.current}px)`;
+      if (!pausedRef.current && halfWidth > 0) {
+        positionRef.current = (positionRef.current + speed * 0.015) % halfWidth;
+        track.style.transform = `translate3d(-${positionRef.current}px, 0, 0)`;
+      }
+
       rafRef.current = requestAnimationFrame(animate);
     };
 
     rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [speed]); // no isHovered dep — pausedRef handles it without restarting loop
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      observer.disconnect();
+      window.removeEventListener("resize", measureWidth);
+    };
+  }, [speed]);
 
   return (
     <div
+      ref={containerRef}
       className="relative overflow-hidden w-full"
       onMouseEnter={() => { pausedRef.current = pauseOnHover; }}
       onMouseLeave={() => { pausedRef.current = false; }}

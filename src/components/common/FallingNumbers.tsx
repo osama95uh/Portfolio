@@ -9,65 +9,87 @@ interface Particle {
   speed: number;
   opacity: number;
   value: string;
-  rotation: number;
-  rotationSpeed: number;
 }
 
 export default function FallingNumbers() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
   const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const numbers = ["1", "2", "3", "4", "5"];
+    // Check prefers-reduced-motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const numbers = ["0", "1", "0", "1", "3", "7"];
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    let resizeTimeout: NodeJS.Timeout;
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (!canvas) return;
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }, 150);
     };
 
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("resize", resizeCanvas, { passive: true });
+
+    const particleCount = width < 768 ? 20 : 32;
 
     const createParticle = (): Particle => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height * -1,
-      size: Math.random() * 14 + 11,
-      speed: Math.random() * 1.2 + 0.6,
-      opacity: Math.random() * 0.4 + 0.15,
+      x: Math.random() * width,
+      y: Math.random() * height * -1,
+      size: Math.floor(Math.random() * 5 + 12),
+      speed: Math.random() * 1.0 + 0.5,
+      opacity: Math.random() * 0.35 + 0.1,
       value: numbers[Math.floor(Math.random() * numbers.length)],
-      rotation: Math.random() * 360,
-      rotationSpeed: Math.random() * 1.5 - 0.75,
     });
 
-    particlesRef.current = Array.from({ length: 45 }, createParticle);
+    const particles: Particle[] = Array.from({ length: particleCount }, createParticle);
+
+    let isTabVisible = true;
+    const handleVisibilityChange = () => {
+      isTabVisible = document.visibilityState === "visible";
+      if (isTabVisible && !animationRef.current) {
+        animate();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!isTabVisible) {
+        animationRef.current = null;
+        return;
+      }
 
-      particlesRef.current.forEach((p) => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Set common state once per frame instead of per-particle
+      ctx.fillStyle = "#10b981";
+      ctx.textAlign = "center";
+      ctx.font = '13px "Geist Mono", monospace';
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         p.y += p.speed;
-        p.rotation += p.rotationSpeed;
 
-        if (p.y > canvas.height + 50) {
-          p.y = -50;
-          p.x = Math.random() * canvas.width;
+        if (p.y > height + 20) {
+          p.y = -20;
+          p.x = Math.random() * width;
         }
 
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rotation * Math.PI) / 180);
         ctx.globalAlpha = p.opacity;
-        ctx.font = `${p.size}px "Geist Mono", monospace`;
-        ctx.fillStyle = "#10b981";
-        ctx.fillText(p.value, 0, 0);
-        ctx.restore();
-      });
+        ctx.fillText(p.value, p.x, p.y);
+      }
 
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -77,13 +99,16 @@ export default function FallingNumbers() {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       window.removeEventListener("resize", resizeCanvas);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      clearTimeout(resizeTimeout);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-[-1] opacity-60"
+      className="fixed inset-0 pointer-events-none z-[-1] opacity-50"
+      style={{ willChange: "transform" }}
     />
   );
 }

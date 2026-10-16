@@ -107,7 +107,6 @@ body {
 @media (hover: hover) and (pointer: fine) {
   html,
   body,
-  *,
   a,
   button,
   input,
@@ -127,6 +126,7 @@ body {
     height: 0;
     pointer-events: none;
     opacity: 0;
+    will-change: transform;
     transition: opacity 140ms ease;
   }
 
@@ -145,6 +145,7 @@ body {
     background: rgb(16 185 129 / 0.06);
     box-shadow: 0 0 14px rgb(16 185 129 / 0.18);
     transform: translate(-50%, -50%);
+    will-change: transform;
     transition:
       width 160ms ease,
       height 160ms ease,
@@ -220,5 +221,24 @@ body {
 
 .animate-marquee-slow-reverse {
   animation: marquee-reverse 6s linear infinite;
+}
+
+@keyframes blob-morph {
+  0% {
+    transform: rotate(0deg);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  }
+  50% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  100% {
+    transform: rotate(360deg);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  }
+}
+
+.animate-nav-blob {
+  animation: blob-morph 20s linear infinite;
+  will-change: transform;
 }
 

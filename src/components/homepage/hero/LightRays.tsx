@@ -89,7 +89,7 @@ const LightRays = ({
       await new Promise(resolve => setTimeout(resolve, 10));
       if (!containerRef.current) return;
 
-      const renderer = new Renderer({ dpr: Math.min(window.devicePixelRatio, 2), alpha: true });
+      const renderer = new Renderer({ dpr: 1, alpha: true });
       rendererRef.current = renderer;
       const gl = renderer.gl;
       gl.canvas.style.width = '100%';
@@ -147,19 +147,30 @@ void main(){vec4 color;mainImage(color,gl_FragCoord.xy);gl_FragColor=color;}`;
 
       const updatePlacement = () => {
         if (!containerRef.current || !renderer) return;
-        renderer.dpr = Math.min(window.devicePixelRatio, 2);
+        renderer.dpr = 1;
         const { clientWidth: wCSS, clientHeight: hCSS } = containerRef.current;
         renderer.setSize(wCSS, hCSS);
-        const dpr = renderer.dpr;
-        const w = wCSS * dpr; const h = hCSS * dpr;
+        const w = wCSS; const h = hCSS;
         uniforms.iResolution.value = [w, h];
         const { anchor, dir } = getAnchorAndDir(raysOrigin, w, h);
         uniforms.rayPos.value = anchor;
         uniforms.rayDir.value = dir;
       };
 
+      let isPageActive = true;
+      const handleVis = () => {
+        isPageActive = document.visibilityState === 'visible';
+        if (isPageActive && !animationIdRef.current) {
+          animationIdRef.current = requestAnimationFrame(loop);
+        }
+      };
+      document.addEventListener('visibilitychange', handleVis);
+
       const loop = (t: number) => {
-        if (!rendererRef.current || !uniformsRef.current || !meshRef.current) return;
+        if (!isPageActive || !rendererRef.current || !uniformsRef.current || !meshRef.current) {
+          animationIdRef.current = null;
+          return;
+        }
         uniforms.iTime.value = t * 0.001;
         if (followMouse && mouseInfluence > 0.0) {
           const s = 0.92;
@@ -178,6 +189,7 @@ void main(){vec4 color;mainImage(color,gl_FragCoord.xy);gl_FragColor=color;}`;
       cleanupFunctionRef.current = () => {
         if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
         window.removeEventListener('resize', updatePlacement);
+        document.removeEventListener('visibilitychange', handleVis);
         try {
           const loseCtx = renderer.gl.getExtension('WEBGL_lose_context');
           if (loseCtx) loseCtx.loseContext();
@@ -208,14 +220,22 @@ void main(){vec4 color;mainImage(color,gl_FragCoord.xy);gl_FragColor=color;}`;
   }, [raysColor, raysSpeed, lightSpread, raysOrigin, rayLength, pulsating, fadeDistance, saturation, mouseInfluence, noiseAmount, distortion]);
 
   useEffect(() => {
+    let mouseRaf: number | null = null;
     const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current || !rendererRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      mouseRef.current = { x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height };
+      if (mouseRaf) return;
+      mouseRaf = requestAnimationFrame(() => {
+        mouseRaf = null;
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        mouseRef.current = { x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height };
+      });
     };
     if (followMouse) {
-      window.addEventListener('mousemove', handleMouseMove);
-      return () => window.removeEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
+      return () => {
+        if (mouseRaf) cancelAnimationFrame(mouseRaf);
+        window.removeEventListener('mousemove', handleMouseMove);
+      };
     }
   }, [followMouse]);
 
