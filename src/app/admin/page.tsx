@@ -17,6 +17,7 @@ import {
   HiOutlineTrash,
   HiOutlinePlus,
   HiOutlineExternalLink,
+  HiOutlinePhotograph,
 } from "react-icons/hi";
 
 export default function AdminPage() {
@@ -38,13 +39,12 @@ export default function AdminPage() {
   const [projectSuccess, setProjectSuccess] = useState("");
   const [projectError, setProjectError] = useState("");
   const [projectLoading, setProjectLoading] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [projectForm, setProjectForm] = useState({
     title: "",
     description: "",
     github: "",
-    image: "/branch-office-network.png",
+    image: "",
     tech: "",
     features: "",
     challenges: "",
@@ -133,13 +133,18 @@ export default function AdminPage() {
     setProjectLoading(true);
 
     try {
+      const payload = {
+        ...projectForm,
+        image: projectForm.image.trim() || "/branch-office-network.png",
+      };
+
       const res = await fetch("/api/admin/projects", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(projectForm),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -149,7 +154,7 @@ export default function AdminPage() {
           title: "",
           description: "",
           github: "",
-          image: "/branch-office-network.png",
+          image: "",
           tech: "",
           features: "",
           challenges: "",
@@ -165,39 +170,6 @@ export default function AdminPage() {
       setProjectError("Error saving project to backend");
     } finally {
       setProjectLoading(false);
-    }
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    // Allow picking the same file again consecutively
-    e.target.value = "";
-    if (!file) return;
-
-    const authToken = localStorage.getItem("siam_admin_token");
-    setProjectError("");
-    setImageUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${authToken}` },
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success && data.url) {
-        setProjectForm((prev) => ({ ...prev, image: data.url }));
-      } else {
-        setProjectError(data.message || "Image upload failed");
-      }
-    } catch {
-      setProjectError("Error uploading image to server");
-    } finally {
-      setImageUploading(false);
     }
   };
 
@@ -258,7 +230,7 @@ export default function AdminPage() {
           </div>
 
           <p className="text-gray-400 text-xs mb-6 leading-relaxed">
-            Authorized personnel only. Enter the master security password to access the Visitor Telemetry & Projects Manager.
+            Authorized personnel only. Enter the master security password to access the Visitor Telemetry & Project Management Center.
           </p>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -316,7 +288,7 @@ export default function AdminPage() {
             </h1>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Real-time Visitor Audit, Telemetry Ingestion, and Projects Manager
+            Real-time Visitor Audit, Telemetry Ingestion, and Project Lab Management
           </p>
         </div>
 
@@ -400,7 +372,7 @@ export default function AdminPage() {
 
               <div className="bg-zinc-950/80 border border-emerald-500/20 rounded-xl p-4">
                 <div className="flex items-center justify-between text-gray-400 mb-2">
-                  <span className="text-xs uppercase">Security Integrity</span>
+                  <span className="text-xs uppercase">Network Integrity</span>
                   <HiOutlineShieldCheck className="w-4 h-4 text-emerald-400" />
                 </div>
                 <div className="text-sm font-bold text-emerald-400 mt-1">100% OPERATIONAL</div>
@@ -517,13 +489,14 @@ export default function AdminPage() {
                 </div>
 
                 <form onSubmit={handleAddProject} className="space-y-4">
+                  {/* Title */}
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">
                       Project Title *
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Enterprise pfSense DMZ & Snort IDS"
+                      placeholder="e.g. Cisco Enterprise Branch & OSPF Multi-Area"
                       value={projectForm.title}
                       onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
                       className="w-full bg-black/70 border border-zinc-800 rounded-lg px-4 py-2.5 text-xs text-gray-200 focus:outline-none focus:border-emerald-500"
@@ -531,6 +504,7 @@ export default function AdminPage() {
                     />
                   </div>
 
+                  {/* GitHub Repo Link */}
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-emerald-400 mb-1.5 flex items-center gap-1.5">
                       <HiOutlineExternalLink className="w-4 h-4" /> GitHub Repository Link
@@ -547,62 +521,58 @@ export default function AdminPage() {
                     </p>
                   </div>
 
+                  {/* Online Hosted Image URL (Replaces Live Demo) */}
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">
-                      Project Image *
-                    </label>
-                    {/* Live preview */}
-                    <div className="relative w-full h-36 mb-2 overflow-hidden rounded-lg border border-emerald-500/30 bg-black/60">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={projectForm.image || "/branch-office-network.png"}
-                        alt="Project preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/branch-office-network.png";
-                        }}
-                      />
-                      {imageUploading && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-emerald-300 text-xs">
-                          Uploading image...
-                        </div>
+                    <label className="block text-xs uppercase tracking-wider text-emerald-400 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <HiOutlinePhotograph className="w-4 h-4" /> Add Project Image (Hosted Online URL)
+                      </span>
+                      {projectForm.image && (
+                        <span className="text-[10px] text-emerald-400 font-normal">
+                          Preview Ready
+                        </span>
                       )}
-                    </div>
-                    <div className="flex gap-2">
-                      <label
-                        className={`flex-1 text-center px-4 py-2.5 border border-emerald-500/40 rounded-lg text-xs text-emerald-300 hover:bg-emerald-500/10 transition-colors cursor-pointer ${
-                          imageUploading ? "opacity-50 pointer-events-none" : ""
-                        }`}
-                      >
-                        {imageUploading ? "Uploading..." : "+ Add Project Image"}
-                        <input
-                          type="file"
-                          accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                          disabled={imageUploading}
-                        />
-                      </label>
-                    </div>
+                    </label>
                     <input
                       type="text"
-                      placeholder="...or paste image URL"
+                      placeholder="https://i.imgur.com/... or https://postimg.cc/... or /branch-office-network.png"
                       value={projectForm.image}
                       onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
-                      className="mt-2 w-full bg-black/70 border border-zinc-800 rounded-lg px-4 py-2.5 text-xs text-gray-200 focus:outline-none focus:border-emerald-500 placeholder:text-gray-600"
+                      className="w-full bg-black/70 border border-emerald-500/40 rounded-lg px-4 py-2.5 text-xs text-emerald-300 focus:outline-none focus:border-emerald-400 placeholder:text-gray-600 font-mono"
                     />
-                    <p className="text-[10px] text-gray-600 mt-1">
-                      Upload PNG / JPG / WebP / GIF / SVG (max 5MB) or paste any image URL. Default: /branch-office-network.png
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      Paste direct online hosted image URL (Imgur, PostImages, Cloudinary, ImgBB, GitHub Raw) or keep blank for default.
                     </p>
+
+                    {/* Live Image Preview */}
+                    {projectForm.image.trim() && (
+                      <div className="mt-2.5 p-2 bg-black/80 border border-emerald-500/30 rounded-lg">
+                        <p className="text-[10px] text-emerald-400 mb-1.5 font-bold uppercase tracking-wider">
+                          Live Image Preview:
+                        </p>
+                        <div className="relative w-full h-32 rounded-md overflow-hidden bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={projectForm.image}
+                            alt="Project Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/branch-office-network.png";
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
+                  {/* Description */}
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">
                       Project Description *
                     </label>
                     <textarea
                       rows={3}
-                      placeholder="Engineered high-availability dual-WAN failover with Snort inline IPS, dedicated VLAN segmentation..."
+                      placeholder="Designed multi-switch branch network with VLAN 10 and VLAN 20 segmentation, Inter-VLAN routing, OSPF Area 0, and DHCP relay..."
                       value={projectForm.description}
                       onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
                       className="w-full bg-black/70 border border-zinc-800 rounded-lg px-4 py-2.5 text-xs text-gray-200 focus:outline-none focus:border-emerald-500"
@@ -610,32 +580,35 @@ export default function AdminPage() {
                     />
                   </div>
 
+                  {/* Tech Stack */}
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">
                       Technologies & Tools (Comma-separated)
                     </label>
                     <input
                       type="text"
-                      placeholder="pfSense, Suricata, WireGuard, Docker, Wazuh, Bash"
+                      placeholder="Cisco Packet Tracer, VLAN, OSPF, IPv4 Subnetting, Wireshark"
                       value={projectForm.tech}
                       onChange={(e) => setProjectForm({ ...projectForm, tech: e.target.value })}
                       className="w-full bg-black/70 border border-zinc-800 rounded-lg px-4 py-2.5 text-xs text-gray-200 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 
+                  {/* Key Features */}
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">
                       Key Features (One per line)
                     </label>
                     <textarea
                       rows={3}
-                      placeholder="Hardware isolated DMZ for public facing services&#10;Dynamic GeoIP IP blocklist with automated ban rules&#10;Encrypted WireGuard site-to-site tunnel"
+                      placeholder="Separates departments into VLAN 10 and VLAN 20&#10;Inter-switch 802.1Q trunk link with native VLAN configuration&#10;Router-on-a-Stick sub-interface routing with subnets"
                       value={projectForm.features}
                       onChange={(e) => setProjectForm({ ...projectForm, features: e.target.value })}
                       className="w-full bg-black/70 border border-zinc-800 rounded-lg px-4 py-2.5 text-xs text-gray-200 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 
+                  {/* Coming Soon Toggle */}
                   <div className="flex items-center gap-2 pt-1">
                     <input
                       type="checkbox"
@@ -685,6 +658,21 @@ export default function AdminPage() {
                         className="p-4 bg-black/60 border border-zinc-800 hover:border-emerald-500/30 rounded-xl transition-all"
                       >
                         <div className="flex items-start justify-between gap-4">
+                          {/* Image thumbnail */}
+                          {project.image && (
+                            <div className="w-20 h-20 rounded-lg bg-zinc-900 border border-zinc-800 overflow-hidden shrink-0">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={project.image}
+                                alt={project.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "/branch-office-network.png";
+                                }}
+                              />
+                            </div>
+                          )}
+
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2.5 flex-wrap">
                               <h3 className="font-bold text-sm text-gray-200">

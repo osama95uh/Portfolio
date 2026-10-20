@@ -8,11 +8,7 @@ import HeroTerminal from "./HeroTerminal";
 export default function Hero() {
 
   return (
-    <section id="home" className="min-h-screen py-24 flex items-center justify-center px-6 overflow-hidden relative">
-      {/* SEO heading: screen-reader only, visual design unchanged */}
-      <h1 className="sr-only">
-        Siam Khan NOC — Network Security Analyst Portfolio
-      </h1>
+    <section className="min-h-screen py-20 sm:py-24 flex items-center justify-center px-4 sm:px-6 overflow-hidden relative">
       {/* Background Rays */}
       <div className="absolute inset-0 z-0">
         <LightRays
@@ -37,7 +33,7 @@ export default function Hero() {
         <HeroTerminal />
 
         {/* Right Side: SysInfo Monitor Panel */}
-        <div className="flex-1 flex justify-center lg:justify-end items-center">
+        <div className="flex-1 w-full flex justify-center lg:justify-end items-center">
           <SheenCard className="w-full">
             <SysInfoPanel />
           </SheenCard>

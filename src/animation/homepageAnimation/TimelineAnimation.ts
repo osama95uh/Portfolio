@@ -17,12 +17,15 @@ export function useGsapTimeline(
   useEffect(() => {
     if (!cardRefs.current.length) return;
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
     // Set initial hidden state
     cardRefs.current.forEach((card, index) => {
       if (card) {
         gsap.set(card, {
           opacity: 0,
-          x: nodes[index]?.side === "left" ? -50 : 50,
+          x: isMobile ? 0 : (nodes[index]?.side === "left" ? -50 : 50),
+          y: isMobile ? 20 : 0,
           scale: 0.95,
         });
       }
@@ -40,6 +43,7 @@ export function useGsapTimeline(
           gsap.to(card, {
             opacity: 1,
             x: 0,
+            y: 0,
             scale: 1,
             duration: 0.6,
             ease: "power2.out",

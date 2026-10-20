@@ -42,8 +42,8 @@ export interface SiteConfigDoc extends SiteConfig {
 // Default fallback config
 const DEFAULT_CONFIG: SiteConfig = {
   displayName: "Siam Khan",
-  primaryRole: "Network Security Analyst",
-  statusTerminal: "Monitoring Traffic",
+  primaryRole: "Junior Network Engineer",
+  statusTerminal: "Routing & Switching // Standby",
   countryTag: "BD",
   githubUsername: "osama95uh",
   avatarUrl: "/mew.png",
@@ -334,97 +334,6 @@ export async function updateSiteConfig(updates: Partial<SiteConfig>): Promise<Si
 
   saveLocalConfig(updated);
   return updated;
-}
-
-// ─────────────────────────────────────────────────────────────
-// Project Images (MongoDB + Local Fallback)
-//
-// Uploaded images are ALWAYS written to local disk, and ALSO saved into
-// MongoDB whenever it is configured. This matters on internet hosting
-// (Vercel, Docker, VPS redeploys) where the local filesystem is ephemeral
-// or read-only - the database copy keeps the images alive.
-// ─────────────────────────────────────────────────────────────
-
-export interface ProjectImageDoc {
-  filename: string;
-  data: string; // base64
-  contentType: string;
-  size: number;
-  uploadedAt: string;
-}
-
-const IMAGE_UPLOAD_DIR = path.join(process.cwd(), "src", "data", "storage", "uploads");
-
-export async function saveProjectImage(
-  filename: string,
-  buffer: Buffer,
-  contentType: string
-): Promise<void> {
-  try {
-    fs.mkdirSync(IMAGE_UPLOAD_DIR, { recursive: true });
-    fs.writeFileSync(path.join(IMAGE_UPLOAD_DIR, filename), buffer);
-  } catch (err) {
-    console.warn("Failed to persist uploaded image locally:", err);
-  }
-
-  const db = await getMongoDb();
-  if (db) {
-    try {
-      const collection = db.collection<ProjectImageDoc>("project_images");
-      await collection.updateOne(
-        { filename },
-        {
-          $set: {
-            filename,
-            data: buffer.toString("base64"),
-            contentType,
-            size: buffer.length,
-            uploadedAt: new Date().toISOString(),
-          },
-        },
-        { upsert: true }
-      );
-    } catch (err) {
-      console.warn("MongoDB saveProjectImage failed, local copy kept:", err);
-    }
-  }
-}
-
-export async function getProjectImage(
-  filename: string
-): Promise<{ data: Buffer; contentType: string } | null> {
-  // Database copy first - survives hosting redeploys / ephemeral disks.
-  const db = await getMongoDb();
-  if (db) {
-    try {
-      const collection = db.collection<ProjectImageDoc>("project_images");
-      const doc = await collection.findOne({ filename });
-      if (doc && typeof doc.data === "string" && doc.data.length > 0) {
-        return {
-          data: Buffer.from(doc.data, "base64"),
-          contentType: doc.contentType || "application/octet-stream",
-        };
-      }
-    } catch (err) {
-      console.warn("MongoDB getProjectImage failed, trying local file:", err);
-    }
-  }
-
-  try {
-    const data = await fs.promises.readFile(path.join(IMAGE_UPLOAD_DIR, filename));
-    const ext = path.extname(filename).toLowerCase();
-    const types: Record<string, string> = {
-      ".png": "image/png",
-      ".jpg": "image/jpeg",
-      ".jpeg": "image/jpeg",
-      ".webp": "image/webp",
-      ".gif": "image/gif",
-      ".svg": "image/svg+xml",
-    };
-    return { data, contentType: types[ext] || "application/octet-stream" };
-  } catch {
-    return null;
-  }
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 interface SocLogEvent {
   id: string;
   timestamp: string;
-  source: "pfSense" | "Suricata" | "Snort" | "Wazuh-SIEM" | "Sentinel";
+  source: "pfSense" | "Suricata" | "Snort" | "Wazuh-SIEM" | "Cisco-IOS";
   severity: "INFO" | "NOTICE" | "WARNING" | "CRITICAL";
   mitreTag?: string;
   message: string;
@@ -21,14 +21,14 @@ const TEMPLATES: Omit<SocLogEvent, "id" | "timestamp">[] = [
     source: "Suricata",
     severity: "NOTICE",
     mitreTag: "T1046",
-    message: "SURICATA STREAM: Network service discovery scan detected and flagged",
+    message: "SURICATA IDS: Network service discovery scan detected and flagged",
     details: "Signature: [1:2001219:2] ET SCAN Potential Nmap OS Detection Probe",
   },
   {
     source: "Wazuh-SIEM",
     severity: "INFO",
     message: "Syscheck integrity baseline verified for /etc/snort/rules",
-    details: "Agent 001 (core-secops-node) - MD5 and SHA256 checksums matched",
+    details: "Agent 001 (core-node) - MD5 and SHA256 checksums matched",
   },
   {
     source: "pfSense",
@@ -43,11 +43,10 @@ const TEMPLATES: Omit<SocLogEvent, "id" | "timestamp">[] = [
     details: "Packet size: 64 bytes, TTL: 64, Checksum: valid",
   },
   {
-    source: "Sentinel",
-    severity: "NOTICE",
-    mitreTag: "T1071.001",
-    message: "Encrypted C2 anomaly check passed on HTTPS egress telemetry",
-    details: "JA3 Fingerprint matched legitimate browser profile (TLS 1.3)",
+    source: "Cisco-IOS",
+    severity: "INFO",
+    message: "%OSPF-5-ADJCHG: Process 1, Nbr 192.168.1.1 on Gi0/0/1 from LOADING to FULL",
+    details: "Area: 0.0.0.0, Neighbor State: Full/DR, Hello: 10s, Dead: 40s",
   },
   {
     source: "Wazuh-SIEM",
@@ -66,7 +65,7 @@ const TEMPLATES: Omit<SocLogEvent, "id" | "timestamp">[] = [
     severity: "CRITICAL",
     mitreTag: "T1110.001",
     message: "DROP: Repeated failed SSH authentication attempts mitigated by Fail2Ban",
-    details: "SRC: 194.26.29.11 -> Port 22 [Rule: ET SCAN SSH Brute Force Rule Triggered]",
+    details: "SRC: 194.26.29.11 -> Port 22 [Rule: ET SCAN SSH Brute Force]",
   },
 ];
 
@@ -96,7 +95,7 @@ export async function GET(request: Request) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(log)}\n\n`));
       }
 
-      // Send new log every 2.5 - 4 seconds
+      // Send new log every 3 seconds
       const interval = setInterval(() => {
         try {
           const log = getRandomLog();

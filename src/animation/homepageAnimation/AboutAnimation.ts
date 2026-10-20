@@ -16,40 +16,51 @@ export const useAboutAnimation = () => {
     () => {
       if (!imageRef.current || !contentRef.current) return;
       
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: "+=100%",
-          pin: true,
-          scrub: 1,
-          pinSpacing: true,
-        },
+      const mm = gsap.matchMedia();
+
+      // DESKTOP (PC): Keep exact pinned animation intact
+      mm.add("(min-width: 768px)", () => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: "+=100%",
+            pin: true,
+            scrub: 1,
+            pinSpacing: true,
+          },
+        });
+
+        tl.to(imageRef.current, {
+          opacity: 0,
+          scale: 0.5,
+          duration: 1,
+          ease: "power2.inOut",
+        })
+        .to(contentRef.current, {
+          opacity: 1,
+          duration: 0.8,
+          ease: "power2.out",
+        }, "-=0.3")
+        .from(leftColRef.current, {
+          opacity: 0,
+          x: -30,
+          duration: 0.6,
+          ease: "power2.out",
+        }, "-=0.4")
+        .from(rightColRef.current, {
+          opacity: 0,
+          x: 30,
+          duration: 0.6,
+          ease: "power2.out",
+        }, "-=0.4");
       });
 
-      tl.to(imageRef.current, {
-        opacity: 0,
-        scale: 0.5,
-        duration: 1,
-        ease: "power2.inOut",
-      })
-      .to(contentRef.current, {
-        opacity: 1,
-        duration: 0.8,
-        ease: "power2.out",
-      }, "-=0.3")
-      .from(leftColRef.current, {
-        opacity: 0,
-        x: -30,
-        duration: 0.6,
-        ease: "power2.out",
-      }, "-=0.4")
-      .from(rightColRef.current, {
-        opacity: 0,
-        x: 30,
-        duration: 0.6,
-        ease: "power2.out",
-      }, "-=0.4");
+      // MOBILE (Phones): Keep content visible and naturally scrollable without scroll lock
+      mm.add("(max-width: 767px)", () => {
+        gsap.set(contentRef.current, { opacity: 1 });
+        gsap.set(imageRef.current, { opacity: 1, scale: 1 });
+      });
     },
     { scope: containerRef },
   );

@@ -42,7 +42,7 @@ const About = () => {
       </div>
 
       {/* Container for image and content */}
-      <div className="relative min-h-[600px] flex items-center justify-center">
+      <div className="relative flex flex-col md:block md:min-h-[600px] items-center justify-center">
         <AboutImage imageRef={imageRef} />
         <AboutContent
           contentRef={contentRef}

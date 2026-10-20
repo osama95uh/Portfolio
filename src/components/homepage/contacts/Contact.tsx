@@ -3,23 +3,23 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { HiOutlineMail } from "react-icons/hi";
-import { FaDiscord, FaFacebook, FaGithub } from "react-icons/fa";
+import { FaDiscord, FaGithub, FaLinkedin } from "react-icons/fa";
 import "./Contact.css"
 
 const socials = [
   {
-    icon: <FaFacebook className="w-5 h-5" />,
-    label: "Facebook",
-    href: "https://www.facebook.com/profile.php?id=61586270354025",
-    handle: "Siam khan",
-    command: "npx connect --profile Siam Khan --platform facebook",
+    icon: <FaLinkedin className="w-5 h-5" />,
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/siam-khan",
+    handle: "siam-khan",
+    command: "npx connect --profile Siam-Khan --platform linkedin",
   },
   {
     icon: <HiOutlineMail className="w-5 h-5" />,
     label: "Email",
-    href: "https://mail.google.com/mail/?view=cm&to=whoamimcc@gmail.com",
+    href: "mailto:whoamimcc@gmail.com",
     handle: "whoamimcc@gmail.com",
-    command: "echo 'get in touch!' | mail -s 'Collaboration'",
+    command: "echo 'get in touch!' | mail -s 'Networking Opportunity'",
   },
   {
     icon: <FaDiscord className="w-5 h-5" />,
@@ -96,7 +96,7 @@ export default function Contact() {
             <span className="text-emerald-400 text-xs tracking-widest uppercase">---</span>
           </div>
           
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 font-mono">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 font-mono tracking-tight">
             <span className="text-emerald-400">&gt;</span> 
             <span className="text-white"> ESTABLISH_CONNECTION</span>
             <span className="text-emerald-400 animate-blink inline-block">_</span>
@@ -130,7 +130,7 @@ export default function Contact() {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative overflow-hidden flex items-center justify-between px-6 py-4 rounded-xl border border-emerald-500/20 bg-black/60 hover:border-emerald-500/60 hover:bg-emerald-500/5 transition-all duration-300 backdrop-blur-sm"
+              className="group relative overflow-hidden flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl border border-emerald-500/20 bg-black/60 hover:border-emerald-500/60 hover:bg-emerald-500/5 transition-all duration-300 backdrop-blur-sm"
             >
               {/* HOVER GLOW */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-emerald-500/0 via-emerald-500/5 to-emerald-500/0" />
@@ -138,22 +138,22 @@ export default function Contact() {
               {/* TERMINAL PROMPT ON HOVER */}
               <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-              <div className="flex items-center gap-4">
-                <span className="text-emerald-400 group-hover:scale-110 group-hover:text-emerald-300 transition-all duration-300">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <span className="text-emerald-400 group-hover:scale-110 group-hover:text-emerald-300 transition-all duration-300 shrink-0">
                   {icon}
                 </span>
-                <div>
-                  <span className="font-medium text-gray-200 group-hover:text-emerald-300 transition-colors duration-300 font-mono">
+                <div className="min-w-0">
+                  <span className="font-medium text-gray-200 group-hover:text-emerald-300 transition-colors duration-300 font-mono text-sm sm:text-base">
                     {label}
                   </span>
-                  <p className="text-[10px] font-mono text-emerald-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-[10px] font-mono text-emerald-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 truncate">
                     {command}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-gray-500 text-sm group-hover:text-emerald-400 transition-colors duration-300 font-mono">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-2">
+                <span className="text-gray-500 text-xs sm:text-sm group-hover:text-emerald-400 transition-colors duration-300 font-mono truncate max-w-[120px] sm:max-w-none">
                   {handle}
                 </span>
                 {/* Arrow */}

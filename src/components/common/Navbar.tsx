@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useLenis } from "lenis/react";
 import { navLinks } from "@/src/data/navLinks";
 import {
   HiOutlineHome,
@@ -21,8 +22,27 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 export default function Navbar() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const lenis = useLenis();
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (window.innerWidth < 1024) {
+      setIsVisible(false);
+    }
+    const hash = href.includes("#") ? href.substring(href.indexOf("#")) : "";
+    if (hash) {
+      e.preventDefault();
+      const target = document.querySelector(hash);
+      if (target) {
+        if (lenis) {
+          lenis.scrollTo(target as HTMLElement, { offset: 0, duration: 1.2 });
+        } else {
+          target.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    }
+  };
 
   // Initialize visibility logic safely after hydration to avoid mismatch
   useEffect(() => {
@@ -74,6 +94,15 @@ export default function Navbar() {
         <HiOutlineMenu className="w-5 h-5" />
       </button>
 
+      {/* Mobile Backdrop overlay to close when tapped outside */}
+      {isVisible && (
+        <div
+          onClick={() => setIsVisible(false)}
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Main Vertical Navbar - Changed from bg-black/80 to glass blur */}
       <nav
         className={`fixed left-0 top-1/2 -translate-y-1/2 w-20 backdrop-blur-xl bg-white/5 border-y border-r border-emerald-900/40 rounded-r-3xl z-50 flex flex-col items-center py-8 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-2xl shadow-emerald-900/20 ${
@@ -92,7 +121,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/#home"
-          onClick={() => window.innerWidth < 1024 && setIsVisible(false)}
+          onClick={(e) => handleNavClick(e, "#home")}
           className="mb-8 group flex items-center justify-center relative w-10 h-10"
         >
           <Image
@@ -117,7 +146,7 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                onClick={() => window.innerWidth < 1024 && setIsVisible(false)}
+                onClick={(e) => handleNavClick(e, href)}
                 className={`group relative flex flex-col items-center justify-center p-1.5 w-14 h-14 transition-all duration-300 rounded-full z-10 ${
                   isActive
                     ? "text-emerald-50"

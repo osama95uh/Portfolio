@@ -20,12 +20,11 @@ export default function TimelineSection() {
   }, [activeTab]);
 
   return (
-    <>
-          <div className="mt-12 md:mt-0"></div>
-    <div ref={containerRef} className="max-w-7xl mx-auto ">
-      <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />
-      <Timeline activeTab={activeTab} />
-    </div>
-    </>
+    <section className="py-12 md:py-20 px-4 max-w-7xl mx-auto">
+      <div ref={containerRef}>
+        <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />
+        <Timeline activeTab={activeTab} />
+      </div>
+    </section>
   );
 }

@@ -86,16 +86,32 @@ const LightRays = ({
 
     const initializeWebGL = async () => {
       if (!containerRef.current) return;
-      await new Promise(resolve => setTimeout(resolve, 10));
-      if (!containerRef.current) return;
 
-      const renderer = new Renderer({ dpr: 1, alpha: true });
-      rendererRef.current = renderer;
-      const gl = renderer.gl;
-      gl.canvas.style.width = '100%';
-      gl.canvas.style.height = '100%';
-      while (containerRef.current.firstChild) containerRef.current.removeChild(containerRef.current.firstChild);
-      containerRef.current.appendChild(gl.canvas);
+      // On mobile screens (<768px), skip heavy WebGL fragment shader to keep phones lag-free and load fast
+      if (typeof window !== "undefined" && window.innerWidth < 768) {
+        return;
+      }
+
+      let renderer: any = null;
+      let gl: any = null;
+
+      try {
+        renderer = new Renderer({ dpr: 1, alpha: true });
+        if (!renderer || !renderer.gl || !renderer.gl.canvas) {
+          return;
+        }
+        rendererRef.current = renderer;
+        gl = renderer.gl;
+        if (gl.canvas && 'style' in gl.canvas) {
+          gl.canvas.style.width = '100%';
+          gl.canvas.style.height = '100%';
+        }
+        while (containerRef.current.firstChild) containerRef.current.removeChild(containerRef.current.firstChild);
+        containerRef.current.appendChild(gl.canvas as HTMLCanvasElement);
+      } catch (err) {
+        console.warn("WebGL not supported or context creation failed:", err);
+        return;
+      }
 
       const vert = `attribute vec2 position;varying vec2 vUv;void main(){vUv=position*0.5+0.5;gl_Position=vec4(position,0.0,1.0);}`;
       const frag = `precision highp float;

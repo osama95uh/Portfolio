@@ -7,20 +7,29 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-function LenisScrollSync() {
+function LenisGsapSync() {
   const lenis = useLenis();
 
   useEffect(() => {
     if (!lenis) return;
-    const onScroll = () => {
-      ScrollTrigger.update();
+
+    // 1. Sync Lenis scroll with ScrollTrigger
+    lenis.on("scroll", ScrollTrigger.update);
+
+    // 2. Drive Lenis's raf off GSAP's ticker for zero-jitter, frame-perfect sync
+    const handleTicker = (time: number) => {
+      lenis.raf(time * 1000);
     };
-    lenis.on("scroll", onScroll);
-    // Ensure triggers measure correctly once smooth scroll is ready
-    const t = setTimeout(() => ScrollTrigger.refresh(), 100);
+
+    gsap.ticker.add(handleTicker);
+    gsap.ticker.lagSmoothing(0);
+
+    // 3. Refresh ScrollTrigger to calculate exact initial pin positions
+    ScrollTrigger.refresh();
+
     return () => {
-      lenis.off("scroll", onScroll);
-      clearTimeout(t);
+      lenis.off("scroll", ScrollTrigger.update);
+      gsap.ticker.remove(handleTicker);
     };
   }, [lenis]);
 
@@ -37,6 +46,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     <ReactLenis
       root
       options={{
+        autoRaf: false,
         duration: 1.2,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: "vertical",
@@ -47,7 +57,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
         infinite: false,
       }}
     >
-      <LenisScrollSync />
+      <LenisGsapSync />
       {children}
     </ReactLenis>
   );

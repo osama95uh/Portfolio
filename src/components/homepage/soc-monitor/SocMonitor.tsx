@@ -6,7 +6,7 @@ import { HiOutlineTerminal, HiOutlinePlay, HiOutlinePause, HiOutlineTrash } from
 interface SocLogEvent {
   id: string;
   timestamp: string;
-  source: "pfSense" | "Suricata" | "Snort" | "Wazuh-SIEM" | "Sentinel";
+  source: "pfSense" | "Suricata" | "Snort" | "Wazuh-SIEM" | "Cisco-IOS";
   severity: "INFO" | "NOTICE" | "WARNING" | "CRITICAL";
   mitreTag?: string;
   message: string;
@@ -64,7 +64,7 @@ export default function SocMonitor() {
         <h2 className="section-title text-2xl md:text-3xl font-mono text-white">
           SOC_SECURITY_EVENT_FEED
         </h2>
-        <p className="text-gray-400 mt-2 max-w-xl mx-auto text-xs leading-relaxed">
+        <p className="text-gray-400 mt-2 max-w-2xl mx-auto text-xs leading-relaxed">
           Simulated SOC feed flexing enterprise IDS/IPS telemetry, firewall events, and SIEM ingestion — demo stream, not live infrastructure. Just for flexing with recruiters.
         </p>
       </div>
@@ -79,9 +79,9 @@ export default function SocMonitor() {
               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
               <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
             </div>
-            <div className="flex items-center gap-2 text-emerald-400/80">
-              <HiOutlineTerminal className="w-4 h-4" />
-              <span className="font-bold tracking-wider text-[11px]">
+            <div className="flex items-center gap-2 text-emerald-400/80 min-w-0">
+              <HiOutlineTerminal className="w-4 h-4 shrink-0" />
+              <span className="font-bold tracking-wider text-[11px] truncate max-w-[190px] sm:max-w-none">
                 SIEM-CORE-DAEMON://telemetry.stream
               </span>
             </div>
@@ -142,13 +142,15 @@ export default function SocMonitor() {
 
                 {/* Source Badge */}
                 <span
-                  className={`px-1.5 py-0.2 rounded text-[9px] font-bold border shrink-0 ${
+                  className={`px-1.5 py-0.5 rounded text-[9px] font-bold border shrink-0 ${
                     log.source === "pfSense"
                       ? "bg-blue-500/10 border-blue-500/30 text-blue-400"
                       : log.source === "Suricata"
                       ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
                       : log.source === "Wazuh-SIEM"
                       ? "bg-purple-500/10 border-purple-500/30 text-purple-300"
+                      : log.source === "Cisco-IOS"
+                      ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-300"
                       : "bg-teal-500/10 border-teal-500/30 text-teal-300"
                   }`}
                 >
@@ -178,12 +180,12 @@ export default function SocMonitor() {
                 )}
 
                 {/* Log Message */}
-                <span className="text-gray-200 text-xs">
+                <span className="text-gray-200 text-xs font-mono">
                   {log.message}
                 </span>
 
                 {/* Log Details */}
-                <span className="text-[11px] text-emerald-400/60 md:ml-auto shrink-0 font-light truncate max-w-sm">
+                <span className="text-[11px] text-emerald-400/60 md:ml-auto md:shrink-0 font-light truncate max-w-full md:max-w-sm">
                   {log.details}
                 </span>
               </div>

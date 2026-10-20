@@ -43,7 +43,7 @@ export default function FallingNumbers() {
 
     window.addEventListener("resize", resizeCanvas, { passive: true });
 
-    const particleCount = width < 768 ? 20 : 32;
+    const particleCount = width < 768 ? 8 : 32;
 
     const createParticle = (): Particle => ({
       x: Math.random() * width,

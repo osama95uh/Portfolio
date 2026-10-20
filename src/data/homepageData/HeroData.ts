@@ -1,28 +1,28 @@
 export const skills = [
-  { name: "SIEM & Blue Teaming (Splunk/Wazuh)", level: 86 },
-  { name: "Pentesting & Offensive Security", level: 60 },
-  { name: "IDS/IPS Deployment", level: 85 },
-  { name: "Languages & Scripting", level: 40 },
-  { name: "Cloud & Infrastructure", level: 70 },
-  { name: "Scripting, Automation", level: 45 },
+  { name: "Cisco Routing & Switching", level: 90 },
+  { name: "VLANs & 802.1Q Trunking", level: 88 },
+  { name: "Wireshark Packet Analysis", level: 85 },
+  { name: "IPv4 Subnetting & VLSM", level: 92 },
+  { name: "Firewalls & VPNs (pfSense)", level: 82 },
+  { name: "NOC Network Diagnostics", level: 85 },
 ];
 
 export const roles = [
-  "a Network Security Analyst",
-  "a SecOps Specialist",
-  "a Penetration Tester",
+  "a Junior Network Engineer",
+  "a Network Operations (NOC) Specialist",
+  "a Routing & Switching Enthusiast",
 ];
 
 export const techStack = [
-  "SIEM (Splunk / Sentinel)",
-  "Network Traffic Analysis",
-  "Python & Bash Scripting",
-  "Incident Response",
-  "Linux & Windows Server",
-  "Vulnerability Management",
+  "Cisco IOS & Packet Tracer",
+  "Routing (OSPF / Static)",
+  "VLANs & Inter-VLAN Routing",
+  "Wireshark Packet Inspection",
+  "pfSense & Network Security",
+  "IPv4 Subnetting & Addressing",
 ];
 
-  // GitHub-style activity grid (7 cols × 5 rows = 35 days)
+// GitHub-style activity grid (7 cols × 5 rows = 35 days)
 export const activityDotsGenerator = () => {
   return Array.from({ length: 35 }, (_, i) => {
     const seed = (i * 17 + 7) % 100;
@@ -34,9 +34,9 @@ export const activityDotsGenerator = () => {
 };
 
 export const stats = [
-  { label: "Projects", value: "3+" },
-  { label: "Commits", value: "5" },
-  { label: "YoE", value: "1yr" },
+  { label: "Lab Nodes", value: "10+" },
+  { label: "Protocols", value: "TCP/IP" },
+  { label: "Focus", value: "CCNA" },
 ];
 
 export const dotColors = [

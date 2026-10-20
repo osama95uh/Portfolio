@@ -11,7 +11,7 @@ const HeroTerminal = () => {
     <>
       <div
         ref={leftContentRef}
-        className="text-left opacity-0 flex-1 max-w-2xl px-4 md:px-0"
+        className="text-left opacity-0 flex-1 w-full max-w-2xl px-0 sm:px-2 md:px-0"
       >
         <p className="text-emerald-400 text-sm mb-4 tracking-widest uppercase font-medium">
           --- Welcome ---
@@ -36,7 +36,7 @@ const HeroTerminal = () => {
             </div>
 
             {/* Terminal Content */}
-            <div className="p-5 font-mono">
+            <div className="p-4 sm:p-5 font-mono">
               {/* whoami */}
               <div className="flex items-start gap-2 mb-3">
                 <span className="text-emerald-400 shrink-0">$</span>
@@ -44,11 +44,11 @@ const HeroTerminal = () => {
               </div>
 
               {/* whoami response — photo + info side by side */}
-              <div className="ml-6 mb-5 flex items-center gap-4">
+              <div className="ml-2 sm:ml-6 mb-5 flex items-center gap-3 sm:gap-4">
                 {/* Small photo */}
                 <div className="relative shrink-0">
                   <div className="absolute inset-0 rounded-full bg-emerald-500/10 blur-md" />
-                  <div className="relative w-16 h-16 rounded-full overflow-hidden border border-emerald-400/50 bg-black/60 shadow-[0_0_24px_rgba(52,211,153,0.22)] ring-1 ring-emerald-500/20">
+                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border border-emerald-400/50 bg-black/60 shadow-[0_0_24px_rgba(52,211,153,0.22)] ring-1 ring-emerald-500/20">
                     <Image
                       src="/mew.png"
                       alt="Siam Khan"
@@ -63,14 +63,14 @@ const HeroTerminal = () => {
                 </div>
 
                 {/* Info */}
-                <div>
+                <div className="min-w-0">
                   <div className="text-emerald-300 text-base font-bold leading-tight">
                     Siam Khan
                   </div>
-                  <div className="text-gray-400 text-xs mt-0.5">
+                  <div className="text-gray-400 text-xs mt-0.5 truncate">
                     Network Analyst [NOC]
                   </div>
-                  <div className="flex items-center gap-1.5 mt-1.5">
+                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                     <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/30 rounded text-emerald-400">
                       BD
                     </span>
@@ -90,7 +90,7 @@ const HeroTerminal = () => {
                 </span>
               </div>
 
-              <div className="ml-6 mb-5 flex flex-wrap gap-2">
+              <div className="ml-2 sm:ml-6 mb-5 flex flex-wrap gap-2">
                 {techStack.map((tech) => (
                   <span
                     key={tech}

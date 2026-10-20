@@ -107,7 +107,7 @@ export function SysInfoPanel() {
           <div className="ml-4 space-y-1 text-gray-300">
             <div className="flex gap-2">
               <span className="text-emerald-500 w-16 shrink-0">OS</span>
-              <span>pfSense-SecCore v2.7</span>
+              <span>Cisco-IOS / pfSense NetCore</span>
             </div>
             <div className="flex gap-2">
               <span className="text-emerald-500 w-16 shrink-0">Kernel</span>
@@ -149,7 +149,7 @@ export function SysInfoPanel() {
                   <span className="truncate">{telemetry.city ? `${telemetry.city}, ` : ""}{telemetry.country}</span>
                 </div>
                 <div className="flex gap-2">
-                  <span className="text-emerald-500 w-16 shrink-0">Security</span>
+                  <span className="text-emerald-500 w-16 shrink-0">Network</span>
                   <span className="text-emerald-300">{telemetry.securityStatus} • {telemetry.protocol}</span>
                 </div>
               </>
@@ -191,16 +191,18 @@ export function SysInfoPanel() {
               </span>
             )}
           </div>
-          <div className="ml-4 overflow-x-auto pb-1">
-            <div className="grid min-w-[560px] grid-cols-[repeat(35,1fr)] gap-[3px]">
-              {(gitHubData?.activityDots || defaultDots).map((level, i) => (
-                <div
-                  key={i}
-                  className={`aspect-square rounded-[2px] ${dotColors[level]}`}
-                />
-              ))}
+          <div className="ml-2 sm:ml-4">
+            <div className="overflow-x-auto overflow-y-hidden pb-1">
+              <div className="grid grid-cols-[repeat(35,1fr)] gap-[2px] sm:gap-[3px] min-w-[260px]">
+                {(gitHubData?.activityDots || defaultDots).map((level, i) => (
+                  <div
+                    key={i}
+                    className={`aspect-square rounded-[2px] ${dotColors[level]}`}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="flex justify-between mt-2 text-gray-600">
+            <div className="flex justify-between mt-2 text-gray-600 text-[10px] sm:text-xs">
               <span>5 weeks ago</span>
               <span>today</span>
             </div>

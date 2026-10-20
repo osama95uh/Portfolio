@@ -6,41 +6,39 @@ interface RightColumnProps {
 
 export const RightColumn = ({ rightColRef }: RightColumnProps) => {
   return (
-    <div ref={rightColRef} className="space-y-2">
-      <BioCard title="The work I enjoy">
-        <p className="text-gray-400 leading-relaxed text-[15px]">
-          I enjoy studying systems where things actually matter — where{" "}
-          <span className="text-gray-300">
-            security, performance, and reliability
+    <div ref={rightColRef} className="space-y-4">
+      <BioCard title="Network Focus & Engineering Philosophy">
+        <p className="text-gray-200 leading-relaxed text-sm sm:text-[15px]">
+          I focus on building resilient network foundations where{" "}
+          <span className="text-white font-medium">
+            uptime, packet integrity, and deterministic routing
           </span>{" "}
-          all come together.
+          are paramount. Whether designing VLAN boundaries, configuring inter-VLAN routing, or analyzing Wireshark captures, I treat network stability as mission-critical.
         </p>
       </BioCard>
 
-      <BioCard title="Beyond the screen">
-        <p className="text-gray-400 leading-relaxed text-[15px]">
-          I love diving into <span className="text-gray-300">conspiracy theories</span>,
-          and I&apos;m a fan of <span className="text-gray-300">marvel cinematic stories</span>.
-          I&apos;ve always been fascinated by how much of the past is still unknown.
+      <BioCard title="Continuous Learning & Homelab">
+        <p className="text-gray-200 leading-relaxed text-sm sm:text-[15px]">
+          Beyond daily tasks, I actively build virtual network topologies using{" "}
+          <span className="text-emerald-300">Cisco Packet Tracer</span> and{" "}
+          <span className="text-emerald-300">GNS3</span> to simulate multi-switch branch networks, router configurations, and firewall policies.
         </p>
-        <p className="text-gray-400 leading-relaxed text-[15px]">
-          I also like <span className="text-emerald-300">Valorant</span>,{" "}
-          <span className="text-emerald-300">GTA VC</span>, and{" "}
-          <span className="text-emerald-300">Conqueror&apos;s Blade</span> — they help me relax
-          and sharpen my focus and decision-making.
+        <p className="text-gray-200 leading-relaxed text-sm sm:text-[15px]">
+          I continuously study CCNA-level concepts, protocol behaviors (TCP/IP 3-way handshakes, ARP, STP, DHCP), and Linux networking fundamentals to prepare for enterprise NOC roles.
         </p>
         <div className="flex flex-wrap gap-2 pt-2">
           {[
-            "Rockstar Games",
-            "🐔 chicken farming",
-            "🏛️ marvel",
-            "🎮 Gaming",
-          ].map((hobby) => (
+            "🌐 Network Homelab",
+            "📡 Packet Analysis",
+            "🔧 Cisco IOS CLI",
+            "🐧 Linux Networking",
+            "📊 Network Monitoring",
+          ].map((tag) => (
             <span
-              key={hobby}
-              className="text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400 bg-gray-800/50"
+              key={tag}
+              className="text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-300 bg-gray-800/50 font-mono"
             >
-              {hobby}
+              {tag}
             </span>
           ))}
         </div>

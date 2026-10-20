@@ -34,6 +34,16 @@ export default function Loader({ onFinish }: { onFinish: () => void }) {
   const [glitching, setGlitching] = useState(false);
   const [exiting, setExiting] = useState(false);
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onFinish();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onFinish]);
+
   // Type each command
   useEffect(() => {
     if (lineIndex >= LINES.length) return;
@@ -97,9 +107,17 @@ export default function Loader({ onFinish }: { onFinish: () => void }) {
         }}
       />
 
-      <div className="w-full max-w-lg px-6 font-mono text-sm">
+      {/* Skip Button */}
+      <button
+        onClick={onFinish}
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 font-mono text-[10px] sm:text-[11px] text-gray-400 hover:text-emerald-400 border border-gray-800 hover:border-emerald-500/40 px-3 py-1.5 rounded transition-all uppercase tracking-widest bg-black/60 backdrop-blur-sm z-20 cursor-pointer"
+      >
+        Skip &rarr;
+      </button>
+
+      <div className="w-full max-w-lg px-4 sm:px-6 font-mono text-xs sm:text-sm">
         {/* Header */}
-        <div className="text-emerald-500/50 mb-6 text-xs tracking-widest">
+        <div className="text-emerald-500/50 mb-6 text-[11px] sm:text-xs tracking-widest">
           Siam Khan v3.0.0 — initializing...
         </div>
 

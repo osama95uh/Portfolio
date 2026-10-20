@@ -40,6 +40,7 @@ export default async function ProjectDetails({
             src={project.image}
             alt={project.title}
             fill
+            unoptimized={project.image.startsWith("http") || project.image.endsWith(".svg")}
             className="object-cover object-top"
             priority
           />
@@ -47,10 +48,10 @@ export default async function ProjectDetails({
           
           <div className="absolute bottom-10 left-6 right-6 md:left-10 md:right-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-2 sm:mb-4">
                 {project.title}
               </h1>
-              <p className="text-gray-300 text-lg md:text-xl max-w-2xl leading-relaxed">
+              <p className="text-gray-300 text-sm sm:text-lg md:text-xl max-w-2xl leading-relaxed line-clamp-3 sm:line-clamp-none">
                 {project.description}
               </p>
             </div>
