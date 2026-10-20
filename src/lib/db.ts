@@ -432,3 +432,36 @@ export async function deleteProject(id: string): Promise<boolean> {
   return true;
 }
 
+// Image persistence helpers for compatibility
+export async function getProjectImage(id: string): Promise<string | null> {
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      const collection = db.collection<{ id: string; image: string }>("project_images");
+      const doc = await collection.findOne({ id });
+      if (doc?.image) return doc.image;
+    } catch (err) {
+      console.warn("MongoDB getProjectImage failed:", err);
+    }
+  }
+  return null;
+}
+
+export async function saveProjectImage(id: string, image: string): Promise<boolean> {
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      const collection = db.collection<{ id: string; image: string }>("project_images");
+      await collection.updateOne(
+        { id },
+        { $set: { id, image } },
+        { upsert: true }
+      );
+      return true;
+    } catch (err) {
+      console.warn("MongoDB saveProjectImage failed:", err);
+    }
+  }
+  return false;
+}
+
