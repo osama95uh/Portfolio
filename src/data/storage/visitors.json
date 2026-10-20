@@ -10,12 +10,12 @@
     "asn": "AS0 Private Network",
     "protocol": "HTTP/2",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
-    "browser": "Safari",
-    "os": "macOS",
-    "device": "Mobile",
+    "browser": "Chrome",
+    "os": "Linux",
+    "device": "Desktop",
     "securityStatus": "INTERNAL",
     "firstVisited": "2026-10-15T16:29:03.143Z",
-    "lastVisited": "2026-10-20T12:51:04.204Z",
-    "visitCount": 42
+    "lastVisited": "2026-10-20T13:31:05.088Z",
+    "visitCount": 43
   }
 ]
