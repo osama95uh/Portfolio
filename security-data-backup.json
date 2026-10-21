@@ -1,0 +1,96 @@
+{
+  "identity": {
+    "name": "Siam Khan",
+    "role": "Network Security Analyst",
+    "alternate_roles": [
+      "a Network Security Analyst",
+      "a Cyber Security Engineer",
+      "a SecOps Specialist"
+    ],
+    "status_short": "Available for freelance",
+    "status_terminal": "Monitoring Traffic",
+    "country_tag": "BD",
+    "terminal_prompt": "developer@portfolio:~"
+  },
+
+  "about": [
+    "I am Siam Khan, an enterprise-level Cybersecurity and Network Security Professional focused on delivering resilient security operations and intelligent threat detection across complex hybrid networks.",
+    "I build and operate SIEM-based monitoring platforms with end-to-end telemetry, IDS/IPS orchestration, and incident response workflows. My work emphasizes real-time network visibility, automated detection, and response maturity for enterprise security teams.",
+    "I align technical controls with governance through GRC frameworks such as NIST CSF, ISO 27001, and CIS Controls while continuously improving security posture through network monitoring, risk management, and policy-driven operations."
+  ],
+
+  "toolkit": {
+    "security_operations_secops": [
+      "Splunk",
+      "Microsoft Sentinel",
+      "Log Analysis",
+      "Incident Response",
+      "LimaCharlie",
+      "CrowdStrike EDR"
+    ],
+    "networking_and_security": [
+      "TCP/IP",
+      "Wireshark",
+      "Firewalls",
+      "IDS/IPS",
+      "VPNs"
+    ],
+    "vulnerability_and_assessments": [
+      "Nessus",
+      "Nmap",
+      "Vulnerability Management",
+      "OWASP Top 10"
+    ],
+    "operating_systems": [
+      "Linux (Kali)",
+      "Ubuntu",
+      "Windows Server",
+      "Active Directory"
+    ],
+    "scripting_and_cloud": [
+      "Python",
+      "Bash",
+      "AWS Security",
+      "Azure Security Fundamentals"
+    ],
+    "frameworks_and_methodologies": [
+      "MITRE ATT&CK",
+      "Cyber Kill Chain",
+      "NIST Cybersecurity Framework"
+    ]
+  },
+
+  "hero_tech_stack": [
+    "SIEM (Splunk / Sentinel)",
+    "Network Traffic Analysis",
+    "IDS/IPS Deployment",
+    "Incident Response",
+    "Linux & Windows Server",
+    "Vulnerability Management"
+  ],
+
+  "tech_logos": [
+    "Wireshark",
+    "Splunk",
+    "Linux",
+    "Docker",
+    "Python",
+    "PostgreSQL",
+    "Windows Server",
+    "Git"
+  ],
+
+  "sys_info": {
+    "os": "pfSense-SecCore v2.7",
+    "kernel": "FreeBSD 14.0-RELEASE-p6",
+    "shell": "tmux 3.4",
+    "clock_placeholder": "{time} (displayed as 00:00:00 or dynamic value)",
+    "uptime_format": "hh:mm:ss",
+    "operational_status": [
+      "Monitoring Traffic",
+      "Listening on Interface eth0c",
+      "SYSTEM_READY",
+      "SECURE_CONNECTION"
+    ]
+  }
+}
