@@ -106,7 +106,7 @@ values
   (
     'branch-office-network',
     'Branch Office Network Implementation',
-    'A simulated enterprise branch-office network engineered in Cisco Packet Tracer, demonstrating Layer 2 switching, IEEE 802.1Q VLAN segmentation, and endpoint IP connectivity.',
+    'A simulated branch-office network in Cisco Packet Tracer — Layer 2 switching, 802.1Q VLAN segmentation, and end-to-end IP connectivity.',
     '/branch-office-network.png',
     $p${"Cisco Packet Tracer","VLAN Segmentation","802.1Q Trunking","IPv4 Subnetting","Ethernet Switching"}$p$::text[],
     $p${
@@ -132,7 +132,7 @@ values
   (
     'upcoming-network-lab',
     'Active Directory & Enterprise Helpdesk Lab',
-    'A virtualized IT support environment focusing on Windows Server 2022 Active Directory DS, Group Policy Objects (GPO), user onboarding, and remote assistance.',
+    'A virtualized IT support lab: Windows Server 2022 AD DS, Group Policy (GPO), user onboarding, and remote assistance.',
     '/network-coming-soon.svg',
     $p${"Windows Server","Active Directory","Group Policy","DNS / DHCP","Helpdesk Support"}$p$::text[],
     '{}'::text[], '{}'::text[], '{}'::text[],
@@ -143,7 +143,7 @@ values
   (
     'upcoming-infrastructure-project',
     'Multi-Branch Routing & Firewall Support Lab',
-    'A routed network lab featuring inter-VLAN routing, NAT/PAT, ACL firewall security policies, and Wireshark packet capture analysis for rapid fault isolation.',
+    'A routed multi-branch lab: inter-VLAN routing, NAT/PAT, ACL firewalls, and Wireshark packet analysis.',
     '/network-coming-soon.svg',
     $p${"Inter-VLAN Routing","NAT / PAT","ACL Firewalls","Wireshark","Network Troubleshooting"}$p$::text[],
     '{}'::text[], '{}'::text[], '{}'::text[],

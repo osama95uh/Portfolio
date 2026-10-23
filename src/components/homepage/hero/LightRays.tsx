@@ -175,6 +175,17 @@ void main(){vec4 color;mainImage(color,gl_FragCoord.xy);gl_FragColor=color;}`;
       updatePlacement();
       animationIdRef.current = requestAnimationFrame(loop);
 
+      // Mobile/touch: render the first frames, then freeze (rays remain visible,
+      // but the continuous WebGL loop is stopped - no visual loss at a glance).
+      if (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768) {
+        setTimeout(() => {
+          if (animationIdRef.current) {
+            cancelAnimationFrame(animationIdRef.current);
+            animationIdRef.current = null;
+          }
+        }, 350);
+      }
+
       cleanupFunctionRef.current = () => {
         if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
         window.removeEventListener('resize', updatePlacement);

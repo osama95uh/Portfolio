@@ -26,17 +26,35 @@ export default function FallingNumbers() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
+    // Mobile/touch devices get a lighter pass (fewer particles, capped DPR,
+    // 30fps) so the effect looks the same but costs far less GPU/CPU time.
+    const lite =
+      window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
+    const particleCount = lite ? 12 : 45;
+    const frameSkip = lite ? 2 : 1; // mobile: draw every 2nd frame (~30fps)
+
+    let logicalW = 0;
+    let logicalH = 0;
+
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = lite
+        ? Math.min(window.devicePixelRatio || 1, 1.5)
+        : window.devicePixelRatio || 1;
+      logicalW = window.innerWidth;
+      logicalH = window.innerHeight;
+      canvas.width = Math.round(logicalW * dpr);
+      canvas.height = Math.round(logicalH * dpr);
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
     const createParticle = (): Particle => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height * -1,
+      x: Math.random() * logicalW,
+      y: Math.random() * logicalH * -1,
       size: Math.random() * 14 + 11,
       speed: Math.random() * 1.2 + 0.6,
       opacity: Math.random() * 0.4 + 0.15,
@@ -45,37 +63,61 @@ export default function FallingNumbers() {
       rotationSpeed: Math.random() * 1.5 - 0.75,
     });
 
-    particlesRef.current = Array.from({ length: 45 }, createParticle);
+    particlesRef.current = Array.from({ length: particleCount }, createParticle);
 
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let lastTime = 0;
+    let frameCount = 0;
 
-      particlesRef.current.forEach((p) => {
-        p.y += p.speed;
-        p.rotation += p.rotationSpeed;
+    const animate = (time: number) => {
+      const dt = Math.min((time - lastTime) / 16.7 || 1, 3); // delta-time factor
+      lastTime = time;
 
-        if (p.y > canvas.height + 50) {
-          p.y = -50;
-          p.x = Math.random() * canvas.width;
-        }
+      // On mobile, skip alternate frames - the slow drift is visually identical.
+      frameCount++;
+      if (frameCount % frameSkip === 0) {
+        ctx.clearRect(0, 0, logicalW, logicalH);
+        particlesRef.current.forEach((p) => {
+          p.y += p.speed * dt;
+          p.rotation += p.rotationSpeed * dt * 0.5;
 
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rotation * Math.PI) / 180);
-        ctx.globalAlpha = p.opacity;
-        ctx.font = `${p.size}px "Geist Mono", monospace`;
-        ctx.fillStyle = "#10b981";
-        ctx.fillText(p.value, 0, 0);
-        ctx.restore();
-      });
+          if (p.y > logicalH + 50) {
+            p.y = -50;
+            p.x = Math.random() * logicalW;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.globalAlpha = p.opacity;
+          ctx.font = `${p.size}px "Geist Mono", monospace`;
+          ctx.fillStyle = "#10b981";
+          ctx.fillText(p.value, 0, 0);
+          ctx.restore();
+        });
+      }
 
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animationRef.current = requestAnimationFrame(animate);
+
+    // Fully stop the loop while the tab is hidden (saves battery, zero visual cost).
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+          animationRef.current = null;
+        }
+      } else if (!animationRef.current) {
+        lastTime = 0;
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("resize", resizeCanvas);
     };
   }, []);

@@ -16,6 +16,7 @@ export default function VisitorsPanel() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -41,6 +42,50 @@ export default function VisitorsPanel() {
     load();
   }, []);
 
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const id = setInterval(() => {
+      fetch("/api/admin/visitors", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((b) => {
+          if (b) {
+            setStats(b.stats ?? null);
+            setRows(b.rows ?? []);
+          }
+        })
+        .catch(() => {});
+    }, 30000);
+    return () => clearInterval(id);
+  }, [autoRefresh]);
+
+  const exportCsv = () => {
+    if (!rows.length) return;
+    const cols: (keyof VisitorRow)[] = [
+      "created_at",
+      "path",
+      "ip",
+      "country",
+      "city",
+      "browser",
+      "os",
+      "device",
+      "isp",
+      "visitor_id",
+    ];
+    const esc = (v: unknown) =>
+      `"${String(v ?? "").replace(/"/g, '""').replace(/\r?\n/g, " ")}"`;
+    const csv = [
+      cols.join(","),
+      ...rows.map((r) => cols.map((c) => esc(r[c])).join(",")),
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `visitors-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filtered = query.trim()
     ? rows.filter((r) => {
         const q = query.toLowerCase();
@@ -52,7 +97,7 @@ export default function VisitorsPanel() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-emerald-400 text-lg">
             <span className="text-emerald-500">&gt;</span> VISITOR_INTEL
@@ -62,13 +107,31 @@ export default function VisitorsPanel() {
             newest first).
           </p>
         </div>
-        <button
-          onClick={load}
-          disabled={loading}
-          className="px-3 py-1.5 text-xs border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-colors uppercase tracking-wider disabled:opacity-40"
-        >
-          {loading ? "scanning..." : "refresh"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <label className="flex items-center gap-2 px-3 py-1.5 text-xs border border-emerald-500/20 rounded-lg text-gray-400 cursor-pointer select-none hover:border-emerald-500/40 transition-colors">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="accent-emerald-500 w-3.5 h-3.5"
+            />
+            auto-refresh 30s
+          </label>
+          <button
+            onClick={exportCsv}
+            disabled={!rows.length}
+            className="px-3 py-1.5 text-xs border border-emerald-500/30 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition-colors uppercase tracking-wider disabled:opacity-40"
+          >
+            export csv
+          </button>
+          <button
+            onClick={load}
+            disabled={loading}
+            className="px-3 py-1.5 text-xs border border-emerald-500/30 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition-colors uppercase tracking-wider disabled:opacity-40"
+          >
+            {loading ? "scanning..." : "refresh"}
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -106,7 +169,7 @@ export default function VisitorsPanel() {
       ) : null}
 
       {/* Log table */}
-      <div className="border border-emerald-500/20">
+      <div className="border border-emerald-500/20 rounded-xl overflow-hidden">
         <div className="flex items-center gap-3 border-b border-emerald-500/20 bg-black/60 px-4 py-3">
           <p className="text-xs text-emerald-500 uppercase tracking-widest">
             visitor_log
@@ -115,13 +178,13 @@ export default function VisitorsPanel() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="filter: ip / path / city / browser ..."
-            className="ml-auto bg-black border border-emerald-500/20 px-3 py-1.5 text-xs text-gray-300 outline-none focus:border-emerald-500/50 w-full max-w-xs"
+            className="ml-auto bg-black border border-emerald-500/20 rounded-lg px-3 py-1.5 text-xs text-gray-300 outline-none focus:border-emerald-500/50 w-full max-w-xs"
           />
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
           <table className="w-full text-xs">
-            <thead>
+            <thead className="sticky top-0 bg-zinc-950 z-10">
               <tr className="text-left text-gray-500 border-b border-emerald-500/10">
                 <th className="px-4 py-2 font-normal">TIME (DHAKA)</th>
                 <th className="px-4 py-2 font-normal">PATH</th>
@@ -213,7 +276,7 @@ export default function VisitorsPanel() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border border-emerald-500/20 bg-black/60 p-4">
+    <div className="border border-emerald-500/20 rounded-xl bg-black/60 p-4 hover:border-emerald-500/40 transition-colors">
       <p className="text-[10px] text-gray-500 tracking-[2px] uppercase">{label}</p>
       <p className="text-2xl text-emerald-400 mt-1">{value.toLocaleString()}</p>
     </div>
@@ -223,7 +286,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
 function Breakdown({ title, items }: { title: string; items: Tally[] }) {
   const max = items.reduce((m, i) => Math.max(m, i.value), 0) || 1;
   return (
-    <div className="border border-emerald-500/15 bg-black/40 p-4">
+    <div className="border border-emerald-500/15 rounded-xl bg-black/40 p-4">
       <p className="text-[10px] text-emerald-500/80 tracking-[2px] uppercase mb-3">
         {title}
       </p>

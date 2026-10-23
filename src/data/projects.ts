@@ -18,7 +18,7 @@ export const projects: Project[] = [
     title: "Branch Office Network Implementation",
     image: "/branch-office-network.png",
     description:
-      "A simulated enterprise branch-office network engineered in Cisco Packet Tracer, demonstrating Layer 2 switching, IEEE 802.1Q VLAN segmentation, and endpoint IP connectivity.",
+      "A simulated branch-office network in Cisco Packet Tracer — Layer 2 switching, 802.1Q VLAN segmentation, and end-to-end IP connectivity.",
     tech: ["Cisco Packet Tracer", "VLAN Segmentation", "802.1Q Trunking", "IPv4 Subnetting", "Ethernet Switching"],
     features: [
       "Segmented department endpoints into dedicated VLANs (VLAN 10 and VLAN 20) to isolate broadcast domains and enhance LAN security.",
@@ -43,7 +43,7 @@ export const projects: Project[] = [
     title: "Active Directory & Enterprise Helpdesk Lab",
     image: "/network-coming-soon.svg",
     description:
-      "A virtualized IT support environment focusing on Windows Server 2022 Active Directory DS, Group Policy Objects (GPO), user onboarding, and remote assistance.",
+      "A virtualized IT support lab: Windows Server 2022 AD DS, Group Policy (GPO), user onboarding, and remote assistance.",
     tech: ["Windows Server", "Active Directory", "Group Policy", "DNS / DHCP", "Helpdesk Support"],
     comingSoon: true,
   },
@@ -52,7 +52,7 @@ export const projects: Project[] = [
     title: "Multi-Branch Routing & Firewall Support Lab",
     image: "/network-coming-soon.svg",
     description:
-      "A routed network lab featuring inter-VLAN routing, NAT/PAT, ACL firewall security policies, and Wireshark packet capture analysis for rapid fault isolation.",
+      "A routed multi-branch lab: inter-VLAN routing, NAT/PAT, ACL firewalls, and Wireshark packet analysis.",
     tech: ["Inter-VLAN Routing", "NAT / PAT", "ACL Firewalls", "Wireshark", "Network Troubleshooting"],
     comingSoon: true,
   },

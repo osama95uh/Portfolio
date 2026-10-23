@@ -11,12 +11,72 @@ import {
   type ProjectFormState,
 } from "./adminTypes";
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Confirm dialog (replaces raw browser confirms so the panel stays calm)
+────────────────────────────────────────────────────────────────────────── */
+type Dialog = {
+  title: string;
+  message: string;
+  confirmLabel: string
+  danger?: boolean;
+  onConfirm: () => void;
+} | null;
+
+function ConfirmDialog({
+  dialog,
+  onClose,
+}: {
+  dialog: Dialog;
+  onClose: () => void;
+}) {
+  if (!dialog) return null;
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-4">
+      <div className="w-full max-w-sm border border-emerald-500/30 rounded-2xl bg-zinc-950 p-6 shadow-2xl">
+        <p className="text-emerald-400 text-sm mb-2">
+          <span className="text-emerald-500">&gt;</span> {dialog.title}
+        </p>
+        <p className="text-gray-400 text-xs leading-relaxed whitespace-pre-line">
+          {dialog.message}
+        </p>
+        <div className="flex justify-end gap-2 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-xs uppercase tracking-wider border rounded-lg border-gray-600 text-gray-400 hover:bg-white/5 transition-colors"
+          >
+            cancel
+          </button>
+          <button
+            onClick={() => {
+              dialog.onConfirm();
+              onClose();
+            }}
+            className={`px-4 py-2 text-xs uppercase tracking-wider border rounded-lg transition-colors ${
+              dialog.danger
+                ? "border-red-500/50 bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                : "border-emerald-500/50 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+            }`}
+          >
+            {dialog.confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Panel
+────────────────────────────────────────────────────────────────────────── */
 export default function ProjectsPanel() {
   const [projects, setProjects] = useState<AdminProject[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ProjectFormState | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<Dialog>(null);
+  const [query, setQuery] = useState("");
+  const [toggling, setToggling] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -98,12 +158,6 @@ export default function ProjectsPanel() {
   };
 
   const remove = async (p: AdminProject) => {
-    if (
-      !window.confirm(
-        `Delete "project" ${p.title} (${p.slug})? This cannot be undone.`,
-      )
-    )
-      return;
     const res = await fetch(`/api/admin/projects/${p.id}`, {
       method: "DELETE",
     });
@@ -117,6 +171,7 @@ export default function ProjectsPanel() {
   };
 
   const toggleComingSoon = async (p: AdminProject) => {
+    setToggling(p.id);
     const res = await fetch(`/api/admin/projects/${p.id}`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
@@ -135,6 +190,7 @@ export default function ProjectsPanel() {
         sort_order: p.sort_order ?? 0,
       }),
     });
+    setToggling(null);
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       flash(`toggle failed: ${body?.error ?? res.status}`);
@@ -144,9 +200,27 @@ export default function ProjectsPanel() {
     load();
   };
 
+  const askDelete = (p: AdminProject) =>
+    setDialog({
+      title: "delete_project",
+      message: `“${p.title}” (${"\u00A0"}/projects/${p.slug}) will be removed permanently from the CMS.\nThis cannot be undone.`,
+      confirmLabel: "delete",
+      danger: true,
+      onConfirm: () => remove(p),
+    });
+
+  const filtered = query.trim()
+    ? projects.filter((p) =>
+        [p.title, p.slug, p.description, (p.tech ?? []).join(" ")]
+          .join(" ")
+          .toLowerCase()
+          .includes(query.trim().toLowerCase()),
+      )
+    : projects;
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-emerald-400 text-lg">
             <span className="text-emerald-500">&gt;</span> PROJECT_MANAGER
@@ -160,13 +234,13 @@ export default function ProjectsPanel() {
           <button
             onClick={load}
             disabled={loading}
-            className="px-3 py-1.5 text-xs border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 uppercase tracking-wider disabled:opacity-40"
+            className="px-3 py-1.5 text-xs border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 uppercase tracking-wider rounded-lg disabled:opacity-40"
           >
             {loading ? "loading..." : "refresh"}
           </button>
           <button
             onClick={openNew}
-            className="px-3 py-1.5 text-xs border border-emerald-500 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 uppercase tracking-wider"
+            className="px-3 py-1.5 text-xs border border-emerald-500 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 uppercase tracking-wider rounded-lg"
           >
             + new_project
           </button>
@@ -174,12 +248,12 @@ export default function ProjectsPanel() {
       </div>
 
       {error ? (
-        <p className="text-xs text-red-400 border border-red-500/30 bg-red-500/5 px-3 py-2">
+        <p className="text-xs text-red-400 border border-red-500/30 rounded-lg bg-red-500/5 px-3 py-2">
           ! {error}
         </p>
       ) : null}
       {notice ? (
-        <p className="text-xs text-emerald-300 border border-emerald-500/30 bg-emerald-500/5 px-3 py-2">
+        <p className="text-xs text-emerald-300 border border-emerald-500/30 rounded-lg bg-emerald-500/5 px-3 py-2">
           {notice}
         </p>
       ) : null}
@@ -191,28 +265,41 @@ export default function ProjectsPanel() {
           isEdit={Boolean(editing.id)}
           onCancel={() => setEditing(null)}
           onSave={save}
+          onConfirm={setDialog}
         />
       ) : null}
 
       {/* List */}
-      <div className="border border-emerald-500/20">
-        <div className="border-b border-emerald-500/20 bg-black/60 px-4 py-3">
+      <div className="border border-emerald-500/20 rounded-xl overflow-hidden">
+        <div className="flex flex-wrap items-center gap-3 border-b border-emerald-500/20 bg-black/60 px-4 py-3">
           <p className="text-xs text-emerald-500 uppercase tracking-widest">
             {projects.length} project{projects.length === 1 ? "" : "s"} stored
           </p>
+          {projects.length > 1 ? (
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="search: title / slug / tech ..."
+              className="ml-auto bg-black border border-emerald-500/20 rounded-lg px-3 py-1.5 text-xs text-gray-300 outline-none focus:border-emerald-500/50 w-full max-w-xs"
+            />
+          ) : null}
         </div>
         {projects.length === 0 ? (
           <p className="px-4 py-8 text-center text-gray-600 text-xs">
             No projects yet — press “+ new_project”.
           </p>
+        ) : filtered.length === 0 ? (
+          <p className="px-4 py-8 text-center text-gray-600 text-xs">
+            No results for “{query}”.
+          </p>
         ) : (
           <ul>
-            {projects.map((p) => (
+            {filtered.map((p) => (
               <li
                 key={p.id}
-                className="border-b border-white/5 px-4 py-3 flex items-center gap-4"
+                className="border-b border-white/5 last:border-0 px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 hover:bg-white/[0.02] transition-colors"
               >
-                <div className="relative w-14 h-10 border border-emerald-500/20 overflow-hidden shrink-0 bg-black">
+                <div className="relative w-14 h-10 border border-emerald-500/20 rounded-lg overflow-hidden shrink-0 bg-black">
                   {p.image_url ? (
                     <Image
                       src={p.image_url}
@@ -223,11 +310,11 @@ export default function ProjectsPanel() {
                     />
                   ) : null}
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 basis-40 sm:basis-0">
                   <p className="text-sm text-gray-200 truncate">
                     {p.title}
                     {p.coming_soon ? (
-                      <span className="ml-2 text-[10px] text-amber-400 border border-amber-500/30 px-1 align-middle">
+                      <span className="ml-2 text-[10px] text-amber-400 border border-amber-500/30 px-1 rounded align-middle">
                         COMING SOON
                       </span>
                     ) : null}
@@ -237,12 +324,30 @@ export default function ProjectsPanel() {
                     {p.sort_order ?? 0}
                   </p>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <MiniBtn onClick={() => toggleComingSoon(p)}>
-                    {p.coming_soon ? "unset_soon" : "set_soon"}
+                <div className="flex flex-wrap gap-2 shrink-0">
+                  <MiniBtn
+                    href={`/projects/${p.slug}`}
+                    title="Open this project on the public site"
+                  >
+                    view ↗
+                  </MiniBtn>
+                  <MiniBtn
+                    onClick={() => toggleComingSoon(p)}
+                    title="Toggle the COMING SOON badge"
+                    disabled={toggling === p.id}
+                  >
+                    {toggling === p.id
+                      ? "..."
+                      : p.coming_soon
+                        ? "unset_soon"
+                        : "set_soon"}
                   </MiniBtn>
                   <MiniBtn onClick={() => openEdit(p)}>edit</MiniBtn>
-                  <MiniBtn danger onClick={() => remove(p)}>
+                  <MiniBtn
+                    danger
+                    onClick={() => askDelete(p)}
+                    title={`Delete ${p.title}`}
+                  >
                     delete
                   </MiniBtn>
                 </div>
@@ -251,6 +356,11 @@ export default function ProjectsPanel() {
           </ul>
         )}
       </div>
+
+      <ConfirmDialog
+        dialog={dialog}
+        onClose={() => setDialog(null)}
+      />
     </div>
   );
 }
@@ -258,36 +368,55 @@ export default function ProjectsPanel() {
 function MiniBtn({
   children,
   onClick,
+  href,
   danger,
+  disabled,
+  title,
 }: {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
+  href?: string;
   danger?: boolean;
+  disabled?: boolean;
+  title?: string;
 }) {
+  const cls = `px-2.5 py-1 text-[11px] uppercase tracking-wider border rounded-md transition-colors disabled:opacity-40 ${
+    danger
+      ? "border-red-500/40 text-red-400 hover:bg-red-500/10"
+      : "border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+  }`;
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={cls} title={title}>
+        {children}
+      </a>
+    );
+  }
   return (
-    <button
-      onClick={onClick}
-      className={`px-2.5 py-1 text-[11px] uppercase tracking-wider border transition-colors ${
-        danger
-          ? "border-red-500/40 text-red-400 hover:bg-red-500/10"
-          : "border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
-      }`}
-    >
+    <button onClick={onClick} className={cls} disabled={disabled} title={title}>
       {children}
     </button>
   );
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Editor — full-screen modal with sections + unsaved-changes guard
+────────────────────────────────────────────────────────────────────────── */
+const SECTION =
+  "text-[10px] text-emerald-500 uppercase tracking-[3px] font-mono pt-2";
 
 function ProjectEditor({
   form,
   isEdit,
   onCancel,
   onSave,
+  onConfirm,
 }: {
   form: ProjectFormState;
   isEdit: boolean;
   onCancel: () => void;
   onSave: (form: ProjectFormState) => Promise<string | null>;
+  onConfirm: (d: Dialog) => void;
 }) {
   const [draft, setDraft] = useState<ProjectFormState>(form);
   const [error, setError] = useState<string | null>(null);
@@ -299,6 +428,34 @@ function ProjectEditor({
     key: K,
     value: ProjectFormState[K],
   ) => setDraft((d) => ({ ...d, [key]: value }));
+
+  const dirty =
+    JSON.stringify(draft) !== JSON.stringify(form) && !busy && !uploading;
+
+  // Browser-level guard: warn before closing/reloading with unsaved work.
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
+  const cancel = () => {
+    if (dirty) {
+      onConfirm({
+        title: "unsaved_changes",
+        message:
+          "You have edits you have not saved yet.\nClose the editor and lose them?",
+        confirmLabel: "discard",
+        danger: true,
+        onConfirm: () => onCancel(),
+      });
+      return;
+    }
+    onCancel();
+  };
 
   const autoSlug = () =>
     set(
@@ -360,199 +517,245 @@ function ProjectEditor({
   };
 
   const textarea =
-    "w-full bg-black border border-emerald-500/25 px-3 py-2 text-sm text-gray-200 focus:border-emerald-500 outline-none transition-colors";
+    "w-full bg-black border border-emerald-500/25 rounded-lg px-3 py-2 text-sm text-gray-200 focus:border-emerald-500 outline-none transition-colors";
   const input = textarea;
   const label =
     "block text-[10px] text-gray-500 uppercase tracking-widest mb-1.5";
 
   return (
-    <form
-      onSubmit={submit}
-      className="border border-emerald-500/40 bg-black/60 p-5 space-y-4"
-    >
-      <div className="flex items-center justify-between">
-        <p className="text-emerald-400 text-sm">
-          <span className="text-emerald-500">&gt;</span>{" "}
-          {isEdit ? "edit_project" : "new_project"}
-          {isEdit ? ` [${form.id?.slice(0, 8)}…]` : ""}
-        </p>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-2.5 py-1 text-[11px] border border-gray-600 text-gray-400 hover:bg-white/5 uppercase"
-        >
-          close
-        </button>
-      </div>
-
-      {error ? (
-        <p className="text-xs text-red-400 border border-red-500/30 bg-red-500/5 px-3 py-2">
-          ! {error}
-        </p>
-      ) : null}
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <label className={label}>title *</label>
-          <input
-            className={input}
-            value={draft.title}
-            onChange={(e) => set("title", e.target.value)}
-            onBlur={() => {
-              if (!isEdit && !draft.slug) autoSlug();
-            }}
-            placeholder="Branch Office Network Implementation"
-          />
-        </div>
-        <div>
-          <label className={label}>slug (URL id) *</label>
-          <input
-            className={input}
-            value={draft.slug}
-            onChange={(e) => set("slug", e.target.value)}
-            placeholder="branch-office-network"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className={label}>description</label>
-        <textarea
-          className={`${textarea} h-20 resize-y`}
-          value={draft.description}
-          onChange={(e) => set("description", e.target.value)}
-          placeholder="Short description shown on the project card."
-        />
-      </div>
-
-      {/* Image: URL or upload */}
-      <div>
-        <label className={label}>image — paste an URL or upload a file</label>
-        <div className="flex gap-3">
-          <div className="relative w-24 h-16 border border-emerald-500/25 bg-black overflow-hidden shrink-0">
-            {draft.image_url ? (
-              <Image
-                src={draft.image_url}
-                alt="probe"
-                fill
-                unoptimized
-                className="object-cover"
-              />
+    <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-start justify-center px-3 sm:px-4 py-6 overflow-y-auto">
+      <form
+        onSubmit={submit}
+        className="relative w-full max-w-3xl xl:max-w-4xl border border-emerald-500/40 rounded-2xl bg-zinc-950 p-5 sm:p-6 space-y-4 shadow-2xl"
+      >
+        {/* Modal header */}
+        <div className="flex items-center justify-between gap-4 sticky top-0 -mx-5 sm:-mx-6 -mt-5 sm:-mt-6 px-5 sm:px-6 py-3 bg-zinc-950/95 backdrop-blur border-b border-white/5 z-10 rounded-t-2xl">
+          <div className="min-w-0">
+            <p className="text-emerald-400 text-sm">
+              <span className="text-emerald-500">&gt;</span>{" "}
+              {isEdit ? "edit_project" : "new_project"}
+              {isEdit ? ` [${form.id?.slice(0, 8)}…]` : ""}
+            </p>
+            {isEdit && draft.slug ? (
+              <a
+                href={`/projects/${draft.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-gray-500 hover:text-emerald-400 transition-colors truncate"
+              >
+                /projects/{draft.slug} ↗
+              </a>
             ) : (
-              <span className="absolute inset-0 grid place-items-center text-[10px] text-gray-600">
-                no image
-              </span>
+              <p className="text-[10px] text-gray-600">
+                {isEdit ? "" : "Fill title + description, then save."}
+              </p>
             )}
           </div>
-          <div className="flex-1 space-y-2 min-w-0">
+          <button
+            type="button"
+            onClick={cancel}
+            className="px-2.5 py-1 text-[11px] border border-gray-600 text-gray-400 hover:bg-white/5 rounded-md uppercase shrink-0"
+          >
+            close ✕
+          </button>
+        </div>
+
+        {error ? (
+          <p className="text-xs text-red-400 border border-red-500/30 rounded-lg bg-red-500/5 px-3 py-2">
+            ! {error}
+          </p>
+        ) : null}
+
+        {/* ── Basic info ── */}
+        <p className={SECTION}>— basic info</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className={label}>title *</label>
             <input
               className={input}
-              value={draft.image_url}
-              onChange={(e) => set("image_url", e.target.value)}
-              placeholder="/branch-office-network.png  or  https://.../image.jpg"
+              value={draft.title}
+              onChange={(e) => set("title", e.target.value)}
+              onBlur={() => {
+                if (!isEdit && !draft.slug) autoSlug();
+              }}
+              placeholder="Branch Office Network Implementation"
+            />
+          </div>
+          <div>
+            <label className={label}>
+              slug (URL id) *{" "}
+              <span className="text-gray-600 normal-case tracking-normal">
+                — auto from the title, edit only if needed
+              </span>
+            </label>
+            <input
+              className={input}
+              value={draft.slug}
+              onChange={(e) => set("slug", e.target.value)}
+              placeholder="branch-office-network"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className={label}>description</label>
+          <textarea
+            className={`${textarea} h-20 resize-y`}
+            value={draft.description}
+            onChange={(e) => set("description", e.target.value)}
+            placeholder="Short description shown on the project card."
+          />
+        </div>
+
+        {/* Image: URL or upload */}
+        <div>
+          <label className={label}>image — paste an URL or upload a file</label>
+          <div className="flex gap-3">
+            <div className="relative w-24 h-16 border border-emerald-500/25 rounded-lg bg-black overflow-hidden shrink-0">
+              {draft.image_url ? (
+                <Image
+                  src={draft.image_url}
+                  alt="probe"
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              ) : (
+                <span className="absolute inset-0 grid place-items-center text-[10px] text-gray-600">
+                  no image
+                </span>
+              )}
+            </div>
+            <div className="flex-1 space-y-2 min-w-0">
+              <input
+                className={input}
+                value={draft.image_url}
+                onChange={(e) => set("image_url", e.target.value)}
+                placeholder="/branch-office-network.png  or  https://.../image.jpg"
+              />
+              <input
+                ref={fileInput}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/avif"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) upload(f);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileInput.current?.click()}
+                disabled={uploading}
+                className="px-3 py-1.5 text-[11px] border border-emerald-500/30 rounded-md text-emerald-400 hover:bg-emerald-500/10 uppercase tracking-wider disabled:opacity-40"
+              >
+                {uploading ? "uploading..." : "upload image (max 5MB)"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Content ── */}
+        <p className={SECTION}>— content</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className={label}>tech stack (comma separated)</label>
+            <textarea
+              className={`${textarea} h-20`}
+              value={draft.tech}
+              onChange={(e) => set("tech", e.target.value)}
+              placeholder={"Cisco Packet Tracer, VLAN Segmentation, 802.1Q Trunking"}
+            />
+          </div>
+          <div>
+            <label className={label}>links</label>
+            <input
+              className={`${input} mb-2`}
+              value={draft.github_url}
+              onChange={(e) => set("github_url", e.target.value)}
+              placeholder="GitHub repo URL (optional)"
             />
             <input
-              ref={fileInput}
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/avif"
-              hidden
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) upload(f);
-                e.target.value = "";
-              }}
+              className={input}
+              value={draft.live_url}
+              onChange={(e) => set("live_url", e.target.value)}
+              placeholder="Live demo URL (optional)"
             />
+          </div>
+          <div>
+            <label className={label}>key features (one per line)</label>
+            <textarea
+              className={`${textarea} h-28`}
+              value={draft.features}
+              onChange={(e) => set("features", e.target.value)}
+            />
+          </div>
+          <div>
+            <label className={label}>challenges faced (one per line)</label>
+            <textarea
+              className={`${textarea} h-28`}
+              value={draft.challenges}
+              onChange={(e) => set("challenges", e.target.value)}
+            />
+          </div>
+          <div>
+            <label className={label}>future improvements (one per line)</label>
+            <textarea
+              className={`${textarea} h-28`}
+              value={draft.improvements}
+              onChange={(e) => set("improvements", e.target.value)}
+            />
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className={label}>menu order (sort_order)</label>
+              <input
+                type="number"
+                className={input}
+                value={draft.sort_order}
+                onChange={(e) => set("sort_order", Number(e.target.value))}
+              />
+            </div>
+            <label className="flex items-center gap-3 text-sm text-gray-300 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={draft.coming_soon}
+                onChange={(e) => set("coming_soon", e.target.checked)}
+                className="accent-emerald-500 w-4 h-4"
+              />
+              coming_soon (hides the detail link, shows the badge)
+            </label>
+          </div>
+        </div>
+
+        {/* Sticky action bar */}
+        <div className="sticky bottom-0 -mx-5 sm:-mx-6 -mb-5 sm:-mb-6 px-5 sm:px-6 py-3 bg-zinc-950/95 backdrop-blur border-t border-white/5 flex flex-wrap items-center justify-between gap-3 rounded-b-2xl z-10">
+          <p
+            className={`text-[10px] tracking-wider ${
+              dirty ? "text-amber-400" : "text-gray-600"
+            }`}
+          >
+            {dirty ? "● unsaved changes" : "no pending changes"}
+          </p>
+          <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => fileInput.current?.click()}
-              disabled={uploading}
-              className="px-3 py-1.5 text-[11px] border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 uppercase tracking-wider disabled:opacity-40"
+              onClick={cancel}
+              className="px-4 py-2 text-xs uppercase tracking-wider border border-gray-600 text-gray-400 hover:bg-white/5 rounded-lg"
             >
-              {uploading ? "uploading..." : "upload image (max 5MB)"}
+              cancel
+            </button>
+            <button
+              type="submit"
+              disabled={busy}
+              className="px-5 py-2 text-xs uppercase tracking-wider border border-emerald-500/50 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 rounded-lg transition-colors disabled:opacity-40"
+            >
+              {busy ? "saving..." : isEdit ? "> save changes" : "> add project"}
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Content fields */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <label className={label}>tech stack (comma separated)</label>
-          <textarea
-            className={`${textarea} h-20`}
-            value={draft.tech}
-            onChange={(e) => set("tech", e.target.value)}
-            placeholder={"Cisco Packet Tracer, VLAN Segmentation, 802.1Q Trunking"}
-          />
-        </div>
-        <div>
-          <label className={label}>links</label>
-          <input
-            className={`${input} mb-2`}
-            value={draft.github_url}
-            onChange={(e) => set("github_url", e.target.value)}
-            placeholder="GitHub repo URL (optional)"
-          />
-          <input
-            className={input}
-            value={draft.live_url}
-            onChange={(e) => set("live_url", e.target.value)}
-            placeholder="Live demo URL (optional)"
-          />
-        </div>
-        <div>
-          <label className={label}>key features (one per line)</label>
-          <textarea
-            className={`${textarea} h-28`}
-            value={draft.features}
-            onChange={(e) => set("features", e.target.value)}
-          />
-        </div>
-        <div>
-          <label className={label}>challenges faced (one per line)</label>
-          <textarea
-            className={`${textarea} h-28`}
-            value={draft.challenges}
-            onChange={(e) => set("challenges", e.target.value)}
-          />
-        </div>
-        <div>
-          <label className={label}>future improvements (one per line)</label>
-          <textarea
-            className={`${textarea} h-28`}
-            value={draft.improvements}
-            onChange={(e) => set("improvements", e.target.value)}
-          />
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className={label}>menu order (sort_order)</label>
-            <input
-              type="number"
-              className={input}
-              value={draft.sort_order}
-              onChange={(e) => set("sort_order", Number(e.target.value))}
-            />
-          </div>
-          <label className="flex items-center gap-3 text-sm text-gray-300 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={draft.coming_soon}
-              onChange={(e) => set("coming_soon", e.target.checked)}
-              className="accent-emerald-500 w-4 h-4"
-            />
-            coming_soon (hides the detail link, shows the badge)
-          </label>
-        </div>
-      </div>
-
-      <button
-        type="submit"
-        disabled={busy}
-        className="w-full border border-emerald-500/40 bg-emerald-500/10 py-3 text-sm uppercase tracking-[2px] text-emerald-300 hover:bg-emerald-500/20 transition-colors disabled:opacity-40"
-      >
-        {busy ? "saving..." : isEdit ? "> save changes" : "> add project"}
-      </button>
-    </form>
+      </form>
+    </div>
   );
 }

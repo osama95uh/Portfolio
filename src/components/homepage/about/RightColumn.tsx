@@ -13,7 +13,7 @@ export const RightColumn = ({ rightColRef }: RightColumnProps) => {
           <span className="text-gray-300">
             network performance, system reliability, and user satisfaction
           </span>{" "}
-          come together. Resolving outages and delivering clear technical solutions is what drives me.
+          come together. Resolving outages drives me.
         </p>
       </BioCard>
 

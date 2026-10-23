@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -17,8 +17,30 @@ export default function Projects() {
   const progressDotsRef = useRef<(HTMLDivElement | null)[]>([]);
   const { projects } = useGitHubData();
 
+  // Mid-range/touch devices run the same cards in normal document flow
+  // (no GSAP pinning) - visually it is the same stack, just scroll-native,
+  // which removes the heavy scrub animation that janked on phones.
+  const [isLite, setIsLite] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px), (pointer: coarse)");
+    const update = () => setIsLite(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   useGSAP(
     () => {
+      // Lite mode: no pinning/scrub. Clear any inline GSAP styles left by the
+      // pre-hydration desktop pass so every card is fully visible in flow.
+      if (isLite) {
+        const existing = cardsRef.current.filter(Boolean) as HTMLDivElement[];
+        if (existing.length) {
+          gsap.set(existing, { clearProps: "transform,opacity,zIndex" });
+        }
+        return;
+      }
+
       const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
       const total = cards.length;
       if (!cards[0]) return;
@@ -144,17 +166,18 @@ export default function Projects() {
         dotsTrigger.kill();
       };
     },
-    { scope: sectionRef, dependencies: [] }
+    { scope: sectionRef, dependencies: [isLite] }
   );
 
-  // Refresh ScrollTrigger on resize
+  // Refresh ScrollTrigger on resize (desktop pinning only)
   useEffect(() => {
+    if (isLite) return;
     const handleResize = () => {
       ScrollTrigger.refresh();
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [isLite]);
 
   return (
     <section
@@ -163,13 +186,13 @@ export default function Projects() {
       className="relative bg-black min-h-screen"
     >
       {/* MATRIX GRID */}
-      <div className="fixed inset-0 opacity-[0.04] pointer-events-none bg-[linear-gradient(to_right,#22c55e_1px,transparent_1px),linear-gradient(to_bottom,#22c55e_1px,transparent_1px)] bg-[size:32px_32px]" />
+      <div className={`inset-0 opacity-[0.04] pointer-events-none bg-[linear-gradient(to_right,#22c55e_1px,transparent_1px),linear-gradient(to_bottom,#22c55e_1px,transparent_1px)] bg-[size:32px_32px] ${isLite ? "absolute" : "fixed"}`} />
 
       {/* RADIAL GLOW */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-emerald-500/10 blur-[180px] rounded-full pointer-events-none" />
+      <div className={`top-0 left-1/2 -translate-x-1/2 w-[600px] lg:w-[900px] h-[600px] bg-emerald-500/10 blur-[180px] rounded-full pointer-events-none ${isLite ? "absolute" : "fixed"}`} />
 
       {/* NOISE */}
-      <div className="fixed inset-0 opacity-[0.02] pointer-events-none bg-[radial-gradient(circle_at_center,#22c55e_1px,transparent_1px)] bg-[size:20px_20px]" />
+      <div className={`inset-0 opacity-[0.02] pointer-events-none bg-[radial-gradient(circle_at_center,#22c55e_1px,transparent_1px)] bg-[size:20px_20px] ${isLite ? "absolute" : "fixed"}`} />
 
       {/* CONTENT */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
@@ -191,8 +214,8 @@ export default function Projects() {
 
         {/* CARD STACK CONTAINER */}
         <div
-          className={`relative w-full max-w-6xl ${projects.length === 0 ? "hidden" : ""}`}
-          style={{ height: "480px" }}
+          className={`${projects.length === 0 ? "hidden" : ""} ${isLite ? "relative w-full max-w-6xl flex flex-col gap-10 px-1" : "relative w-full max-w-6xl"}`}
+          style={isLite ? undefined : { height: "480px" }}
         >
           {projects.map((project, index) => (
             <div
@@ -200,13 +223,13 @@ export default function Projects() {
               ref={(el) => {
                 cardsRef.current[index] = el;
               }}
-              className="absolute inset-0 will-change-transform"
+              className={isLite ? "relative will-change-transform" : "absolute inset-0 will-change-transform"}
               style={{
                 transformOrigin: "center center",
                 pointerEvents: "auto",
               }}
             >
-              <div className="group relative overflow-hidden glow-emerald h-full bg-black rounded-xl">
+              <div className={`group relative overflow-hidden glow-emerald bg-black rounded-xl ${isLite ? "min-h-[460px]" : "h-full"}`}>
                 {/* SCANLINES */}
                 <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[repeating-linear-gradient(to_bottom,transparent,transparent_2px,rgba(0,255,120,0.08)_3px)]" />
 
@@ -251,7 +274,7 @@ export default function Projects() {
                   </div>
 
                   {/* RIGHT CONTENT */}
-                  <div className="p-4 sm:p-5 lg:p-6 xl:p-7 flex flex-col overflow-y-auto">
+                  <div className={`p-4 sm:p-5 lg:p-6 xl:p-7 flex flex-col ${isLite ? "" : "overflow-y-auto"}`}>
                     {/* TERMINAL HEADER */}
                     <div className="flex items-center justify-between border-b border-emerald-500/20 pb-3 sm:pb-4 mb-4 sm:mb-5 lg:mb-6">
                       <div className="flex gap-1.5 sm:gap-2">
@@ -354,7 +377,8 @@ export default function Projects() {
           </div>
         )}
 
-        {/* PROGRESS DOTS */}
+        {/* PROGRESS DOTS (desktop pinned-scroll indicator) */}
+        {!isLite && (
         <div className="flex gap-2 sm:gap-3 mt-6 sm:mt-7 lg:mt-8">
           {projects.map((_, i) => (
             <div
@@ -375,6 +399,7 @@ export default function Projects() {
             />
           ))}
         </div>
+        )}
       </div>
     </section>
   );

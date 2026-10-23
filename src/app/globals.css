@@ -222,3 +222,21 @@ body {
   animation: marquee-reverse 6s linear infinite;
 }
 
+/* ─────────────────────────────────────
+   MOBILE PERFORMANCE MODE (≤768px)
+   Same look, static execution: the constantly-painting overlay
+   decorations (scanline sweeps, glitch flickers) are frozen on
+   small screens. Desktop rendering is untouched.
+───────────────────────────────────── */
+@media (max-width: 768px) {
+  .animate-scanlines,
+  .animate-glitch,
+  .animate-glitch-delayed,
+  [class*="animate-glitch"],
+  .tech-scanlines,
+  .tech-glitch-line-1,
+  .tech-glitch-line-2 {
+    animation: none !important;
+  }
+}
+

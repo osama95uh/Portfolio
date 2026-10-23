@@ -1,12 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/common/Navbar";
-import CustomCursor from "../components/common/CustomCursor";
-import LoaderWrapper from "../components/common/LoaderWrapper";
-import FallingNumbers from "../components/common/FallingNumbers";
-import LenisProvider from "../components/common/LenisProvider";
-import ScrollProgress from "../components/common/ScrollProgress";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,9 +12,86 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ??
+  "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Siam Khan | IT Support & Junior Network Engineer | TSE",
-  description: "Portfolio of Siam Khan - IT Support Engineer, Junior Network Engineer, and Technical Support Engineer (TSE) specializing in network infrastructure, troubleshooting, and enterprise IT support.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Siam Khan [NOC] | IT Support & Junior Network Engineer | TSE",
+    template: "%s | Siam Khan [NOC]",
+  },
+  description:
+    "Portfolio of Siam Khan - IT Support Engineer, Junior Network Engineer, and Technical Support Engineer (TSE) specializing in network infrastructure, troubleshooting, and enterprise IT support.",
+  keywords: [
+    "Siam Khan",
+    "SiamKhan",
+    "SiamKhan NOC",
+    "Siam Khan NOC",
+    "SiamKhan Sites",
+    "Siam Khan [NOC]",
+    "IT Support Engineer",
+    "Junior Network Engineer",
+    "Technical Support Engineer",
+    "NOC Engineer",
+    "Network Operations Center",
+    "Network Infrastructure",
+    "Active Directory",
+    "Portfolio",
+    "Bangladesh",
+  ],
+  authors: [{ name: "Siam Khan" }],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    siteName: "Siam Khan [NOC]",
+    title: "Siam Khan [NOC] | IT Support & Junior Network Engineer",
+    description:
+      "Network labs, troubleshooting case studies and enterprise IT support work - switches, VLANs, Active Directory and more.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Siam Khan [NOC] | IT Support & Junior Network Engineer",
+    description:
+      "Network labs, troubleshooting case studies and enterprise IT support work.",
+  },
+  robots: { index: true, follow: true },
+};
+
+/** JSON-LD identity so search engines bind the brand to the person. */
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: "Siam Khan [NOC]",
+      alternateName: ["SiamKhan", "SiamKhan NOC", "SiamKhan Sites"],
+      url: siteUrl,
+    },
+    {
+      "@type": "Person",
+      name: "Siam Khan",
+      alternateName: ["SiamKhan", "SiamKhan NOC", "Siam Khan NOC"],
+      jobTitle: "IT Support & Junior Network Engineer (TSE)",
+      url: siteUrl,
+      knowsAbout: [
+        "Network engineering",
+        "VLANs and switching",
+        "Active Directory",
+        "Technical support",
+        "NOC operations",
+      ],
+    },
+  ],
+};
+
+export const viewport: Viewport = {
+  themeColor: "#050505",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -34,21 +105,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="bg-linear-to-b from-black via-gray-900 to-black text-white">
-        {/* Background Falling Numbers */}
-        <FallingNumbers />
-
-        {/* Global sticky glows */}
-        <div className="fixed top-0 left-0 w-[500px] h-[400px] bg-emerald-500/40 blur-[200px] rounded-full pointer-events-none z-0 -translate-x-1/2 -translate-y-1/2" />
-        <div className="fixed bottom-0 right-0 w-[500px] h-[400px] bg-emerald-500/40 blur-[200px] rounded-full pointer-events-none z-0 translate-x-1/2 translate-y-1/2" />
-
-        <LenisProvider>
-           <ScrollProgress />
-        <CustomCursor />
-        <LoaderWrapper>
-          <Navbar />
-          {children}
-        </LoaderWrapper>
-        </LenisProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {children}
       </body>
     </html>
   );
