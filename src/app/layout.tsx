@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Siam Khan",
-  description: "Siam Khan - Network Security Analyst Portfolio",
+  title: "Siam Khan | IT Support & Junior Network Engineer | TSE",
+  description: "Portfolio of Siam Khan - IT Support Engineer, Junior Network Engineer, and Technical Support Engineer (TSE) specializing in network infrastructure, troubleshooting, and enterprise IT support.",
 };
 
 export default function RootLayout({

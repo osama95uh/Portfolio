@@ -6,7 +6,8 @@ import { useRef, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { projects } from "@/src/data/projects";
+import { projects as staticProjects } from "@/src/data/projects";
+import { useGitHubData } from "@/src/hooks/useGitHubData";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,6 +15,7 @@ export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const progressDotsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const { projects } = useGitHubData();
 
   useGSAP(
     () => {
@@ -47,11 +49,13 @@ export default function Projects() {
       }
 
       // Create timeline for card stacking effect
+      const scrollDistance = window.innerHeight * (total > 1 ? total - 1 : 1);
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "center center",
-          end: `+=${window.innerHeight * total}`,
+          start: "top top",
+          end: `+=${scrollDistance}`,
           pin: true,
           scrub: 1.2,
           pinSpacing: true,
@@ -60,57 +64,56 @@ export default function Projects() {
       });
 
       // Animate each card: current card moves up, next card slides in on top
-for (let i = 0; i < total; i++) {
-  const currentCard = cards[i];
-  const nextCard = cards[i + 1];
-  
-  if (!currentCard) continue;
+      for (let i = 0; i < total; i++) {
+        const currentCard = cards[i];
+        const nextCard = cards[i + 1];
+        
+        if (!currentCard) continue;
 
-  // Only animate if NOT the last card
-  if (i < total - 1) {
-    // Current card moves up and fades slightly
-    tl.to(
-      currentCard,
-      {
-        y: "-30%",
-        scale: 0.9,
-        opacity: 0.7,
-        zIndex: total - i - 1,
-        duration: 1,
-        ease: "power2.inOut",
-      },
-      i
-    );
-  }
+        // Only animate if NOT the last card
+        if (i < total - 1) {
+          // Current card moves up and fades slightly
+          tl.to(
+            currentCard,
+            {
+              y: "-30%",
+              scale: 0.9,
+              opacity: 0.7,
+              zIndex: total - i - 1,
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            i
+          );
+        }
 
-  // Next card slides up from bottom and becomes fully visible
-  if (nextCard) {
-    tl.to(
-      nextCard,
-      {
-        y: "0%",
-        scale: 1,
-        opacity: 1,
-        zIndex: total - i,
-        duration: 1,
-        ease: "power2.inOut",
-      },
-      i
-    );
-  }
-}
-
+        // Next card slides up from bottom and becomes fully visible
+        if (nextCard) {
+          tl.to(
+            nextCard,
+            {
+              y: "0%",
+              scale: 1,
+              opacity: 1,
+              zIndex: total - i,
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            i
+          );
+        }
+      }
 
       // Update progress dots based on scroll
-      ScrollTrigger.create({
+      const dotsTrigger = ScrollTrigger.create({
         trigger: sectionRef.current,
-        start: "center center",
-        end: `+=${window.innerHeight * total}`,
+        start: "top top",
+        end: `+=${scrollDistance}`,
         scrub: true,
         onUpdate: (self) => {
           const progress = self.progress;
           const activeIndex = Math.min(
-            Math.floor(progress * total),
+            Math.round(progress * (total - 1)),
             total - 1
           );
           
@@ -134,13 +137,14 @@ for (let i = 0; i < total; i++) {
         },
       });
 
-      // Cleanup
+      // Cleanup only this section's triggers
       return () => {
+        tl.scrollTrigger?.kill();
         tl.kill();
-        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+        dotsTrigger.kill();
       };
     },
-    { scope: sectionRef, dependencies: [projects] }
+    { scope: sectionRef, dependencies: [] }
   );
 
   // Refresh ScrollTrigger on resize
@@ -168,15 +172,15 @@ for (let i = 0; i < total; i++) {
       <div className="fixed inset-0 opacity-[0.02] pointer-events-none bg-[radial-gradient(circle_at_center,#22c55e_1px,transparent_1px)] bg-[size:20px_20px]" />
 
       {/* CONTENT */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen py-28 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
         {/* HEADER */}
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
           <p className="section-label mb-3 sm:mb-4 lg:mb-5">PROJECTS</p>
           <h2 className="section-title font-mono tracking-tight text-2xl sm:text-3xl lg:text-4xl">
-            NETWORK_LAB_ARCHIVE
+            NETWORK_&amp;_SYSTEM_LABS
           </h2>
           <p className="text-secondary mt-4 sm:mt-5 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base px-4">
-            collection of networking labs, infrastructure designs, and technical experiments focused on real-world network operations.
+            A portfolio of network configurations, system topologies, and troubleshooting labs tailored for IT Support, Junior Network, and Technical Support operations.
           </p>
           <div className="flex justify-center gap-2 mt-5 sm:mt-6 lg:mt-7">
             <div className="timeline-dot animate-pulse" />

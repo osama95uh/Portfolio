@@ -1,24 +1,31 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HiOutlineMail } from "react-icons/hi";
+import { HiOutlineMail, HiOutlinePhone } from "react-icons/hi";
 import { FaDiscord, FaFacebook, FaGithub } from "react-icons/fa";
 import "./Contact.css"
 
 const socials = [
   {
-    icon: <FaFacebook className="w-5 h-5" />,
-    label: "Facebook",
-    href: "https://www.facebook.com/profile.php?id=61586270354025",
-    handle: "Siam khan",
-    command: "npx connect --profile Siam Khan --platform facebook",
+    icon: <HiOutlinePhone className="w-5 h-5" />,
+    label: "Phone / WhatsApp",
+    href: "tel:01882806631",
+    handle: "01882806631",
+    command: "call --direct 01882806631",
   },
   {
     icon: <HiOutlineMail className="w-5 h-5" />,
     label: "Email",
     href: "https://mail.google.com/mail/?view=cm&to=whoamimcc@gmail.com",
     handle: "whoamimcc@gmail.com",
-    command: "echo 'get in touch!' | mail -s 'Collaboration'",
+    command: "echo 'Hire for IT / Network / TSE' | mail -s 'Opportunity'",
+  },
+  {
+    icon: <FaGithub className="w-5 h-5" />,
+    label: "GitHub",
+    href: "https://github.com/osama95uh",
+    handle: "siam khan",
+    command: "git clone https://github.com/osama95uh",
   },
   {
     icon: <FaDiscord className="w-5 h-5" />,
@@ -27,15 +34,13 @@ const socials = [
     handle: "siam khan",
     command: "/msg siam khan",
   },
-
   {
-    icon: <FaGithub className="w-5 h-5" />,
-    label: "GitHub",
-    href: "https://github.com/osama95uh",
-    handle: "siam khan",
-    command: "git clone https://github.com/osama95uh",
+    icon: <FaFacebook className="w-5 h-5" />,
+    label: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61586270354025",
+    handle: "Siam khan",
+    command: "npx connect --profile Siam Khan --platform facebook",
   },
-
 ];
 
 const container = {
@@ -108,9 +113,9 @@ export default function Contact() {
           </div>
           
           <p className="text-gray-400 leading-relaxed font-mono text-sm">
-            <span className="text-emerald-500">STATUS:</span> ONLINE_AND_READY
+            <span className="text-emerald-500">STATUS:</span> READY_FOR_OPPORTUNITIES
             <br />
-            <span className="text-emerald-500">MODE:</span> ACCEPTING_CONNECTIONS
+            <span className="text-emerald-500">TARGET:</span> IT_SUPPORT | JR_NETWORK | TSE
           </p>
         </motion.div>
 

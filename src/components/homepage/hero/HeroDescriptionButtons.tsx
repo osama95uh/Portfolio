@@ -8,7 +8,7 @@ const HeroDesButtons = () => {
       {/* Description with SheenCard */}
       <SheenCard className="mb-8">
         <p className="text-gray-400 text-base md:text-lg leading-relaxed backdrop-blur-md bg-black/40 p-4 rounded-lg border border-emerald-500/30">
-        I am SiamKhan, a network operations-focused professional specializing in network monitoring, routing and switching, troubleshooting, and infrastructure reliability.
+        I am Siam Khan, a proactive professional specializing in IT Support, network routing &amp; switching, system troubleshooting, and technical support engineering to keep enterprise networks and end-user operations running smoothly.
         </p>
       </SheenCard>
 

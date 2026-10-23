@@ -1,66 +1,87 @@
 const skills = [
   {
-    category: "Security Operations / SecOps",
+    category: "Network Engineering & Routing",
     items: [
-      "Splunk",
-      "Sentinel",
-      "Log Analysis",
-      "Incident Response",
-      "LimaCharlie",
-      "CrowdStrike EDR",
+      "TCP/IP",
+      "VLAN & Trunking",
+      "Cisco Packet Tracer",
+      "Routing & Switching",
+      "DHCP / DNS",
+      "Wireshark",
     ],
   },
   {
-    category: "Networking & Security",
-    items: ["TCP/IP", "Wireshark", "Firewalls", "IDS/IPS", "VPNs"],
-  },
-  {
-    category: "Vulnerability & Assessments",
-    items: ["Nessus", "Nmap", "Vulnerability Management", "OWASP Top 10"],
-  },
-  {
-    category: "Operating Systems",
-    items: ["Linux (Kali)", "Ubuntu", "Windows Server", "Active Directory"],
-  },
-  {
-    category: "Scripting & Cloud",
-    items: ["Python", "Bash", "AWS Security", "JavaScript", "Azure Security Fundamentals"],
-  },
-  {
-    category: "AI & Automations",
+    category: "IT Support & Troubleshooting",
     items: [
-      "MCP",
-      "Workflow Automations",
-      "Make.com",
-      "n8n",
-      "CRM Automations",
-      "Zapier",
+      "Hardware Diagnostics",
+      "OS Installation & Repair",
+      "Remote Desktop (RDP)",
+      "Printer & Peripheral Support",
+      "Root Cause Analysis",
+      "Ticketing & ITSM",
+    ],
+  },
+  {
+    category: "Systems & Directory Administration",
+    items: [
+      "Active Directory",
+      "Group Policy (GPO)",
+      "Windows Server",
+      "Linux (Ubuntu/Debian)",
+      "User Access Management",
+      "Office 365 / Microsoft 365",
+    ],
+  },
+  {
+    category: "Network Security & Infrastructure",
+    items: [
+      "Firewalls",
+      "VPN Setup",
+      "NAT & ACLs",
+      "Endpoint Security",
+      "Network Access Control",
+      "Data Backup & Recovery",
+    ],
+  },
+  {
+    category: "Scripting & Diagnostic Tools",
+    items: [
+      "Bash Scripting",
+      "PowerShell",
+      "Python",
+      "Ping & Traceroute",
+      "Nmap",
+      "Syslog & Event Viewer",
+    ],
+  },
+  {
+    category: "Technical Support & Operations",
+    items: [
+      "L1 / L2 Escalations",
+      "SLA Adherence",
+      "Technical Documentation",
+      "Customer Support",
+      "Issue Tracking",
+      "Workflow Automation",
     ],
   },
 ];
 
 const education = [
   {
-     degree: "Higher School Certificate (HSC)",
-     institution: "UJ Alim. HSC/Alim ",
-     period: "2025 – 2026",
-     note: "on study    in arts Group",
+    degree: "Higher School Certificate (HSC)",
+    institution: "UJ Alim. HSC/Alim",
+    period: "2025 – 2026",
+    note: "Arts Group",
     badge: "Completed",
-   },
-   {
-     degree: "(ISC)² Certified in Cybersecurity",
-     institution: "ISC2",
-     period: "2024 - 2026",
-     note: "this is only for my non-technical background  ",
-     badge: "Completed",
-   },
-   //{
-   //  degree: "Network Defense Essentials (NDE)",
-   //  institution: "EC-Council",
-   //  period: " 2026",
-   //  note: "EC-Council 112-51 exam",
-   //  badge: "Completed",
-   //},
- ];
+  },
+  {
+    degree: "(ISC)² Certified in Cybersecurity (CC)",
+    institution: "ISC2",
+    period: "2024 - 2026",
+    note: "Foundational Security, Infrastructure & Network Principles",
+    badge: "Completed",
+  },
+];
 
 export { skills, education };

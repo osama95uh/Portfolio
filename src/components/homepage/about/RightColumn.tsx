@@ -9,11 +9,11 @@ export const RightColumn = ({ rightColRef }: RightColumnProps) => {
     <div ref={rightColRef} className="space-y-2">
       <BioCard title="The work I enjoy">
         <p className="text-gray-400 leading-relaxed text-[15px]">
-          I enjoy studying systems where things actually matter — where{" "}
+          I enjoy diagnosing complex technical challenges where{" "}
           <span className="text-gray-300">
-            security, performance, and reliability
+            network performance, system reliability, and user satisfaction
           </span>{" "}
-          all come together.
+          come together. Resolving outages and delivering clear technical solutions is what drives me.
         </p>
       </BioCard>
 

@@ -1,7 +1,17 @@
-import { projects, type Project } from "@/src/data/projects";
+import { getProjectById } from "@/src/lib/db-projects";
+import type { Project } from "@/src/data/projects";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+/**
+ * Project details are read from the Supabase CMS when it is configured
+ * (falling back to the built-in dataset otherwise). The page stays dynamic so
+ * admin edits show up within seconds.
+ *
+ * The rendering below is unchanged - same layout, same markup, same visuals.
+ */
+export const revalidate = 30;
 
 export default async function ProjectDetails({
   params,
@@ -9,7 +19,7 @@ export default async function ProjectDetails({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const project: Project | undefined = projects.find((p) => p.id === id);
+  const project: Project | undefined = await getProjectById(id);
 
   if (!project) {
     notFound();

@@ -1,25 +1,25 @@
 export const skills = [
-  { name: "SIEM & Blue Teaming (Splunk/Wazuh)", level: 86 },
-  { name: "Pentesting & Offensive Security", level: 60 },
-  { name: "IDS/IPS Deployment", level: 85 },
-  { name: "Languages & Scripting", level: 40 },
-  { name: "Cloud & Infrastructure", level: 70 },
-  { name: "Scripting, Automation", level: 45 },
+  { name: "Networking (L2/L3)", level: 88 },
+  { name: "IT Troubleshooting", level: 90 },
+  { name: "Active Directory & OS", level: 85 },
+  { name: "Network Diagnostics", level: 84 },
+  { name: "Linux & Windows Server", level: 80 },
+  { name: "Scripting & Automation", level: 65 },
 ];
 
 export const roles = [
-  "a Network Security Analyst",
-  "a SecOps Specialist",
-  "a Penetration Tester",
+  "an IT Support Engineer",
+  "a Junior Network Engineer",
+  "a Technical Support Engineer (TSE)",
 ];
 
 export const techStack = [
-  "SIEM (Splunk / Sentinel)",
-  "Network Traffic Analysis",
-  "Python & Bash Scripting",
-  "Incident Response",
-  "Linux & Windows Server",
-  "Vulnerability Management",
+  "TCP/IP & Subnetting",
+  "Routing & Switching",
+  "Active Directory & DNS",
+  "Windows & Linux Support",
+  "Network Diagnostics",
+  "ITSM / Ticket Support",
 ];
 
   // GitHub-style activity grid (7 cols × 5 rows = 35 days)

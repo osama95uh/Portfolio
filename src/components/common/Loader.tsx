@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 
 const LINES = [
-  { prompt: "~", cmd: "boot --kernel portfolio.v2" },
-  { prompt: "~", cmd: "load modules [auth, db, ui]" },
-  { prompt: "~", cmd: "npm run dev" },
-  { prompt: "~", cmd: "ping sadnan.dev" },
+  { prompt: "~", cmd: "boot --kernel network-it.v2" },
+  { prompt: "~", cmd: "load modules [network, sysadmin, support]" },
+  { prompt: "~", cmd: "systemctl status network-core" },
+  { prompt: "~", cmd: "ping -c 3 gateway.local" },
 ];
 
 const GRANT_LINE = "✔ ACCESS GRANTED — welcome, user.";

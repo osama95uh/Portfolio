@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { activityDotsGenerator, dotColors, skills, stats } from "@/src/data/homepageData/HeroData";
+import { dotColors, skills } from "@/src/data/homepageData/HeroData";
 import { useClock, useUpTime } from "@/src/hooks/homepageHooks/HeroHooks";
 import { useLoaderDone } from "../../common/LoaderWrapper";
+import { useGitHubData } from "@/src/hooks/useGitHubData";
 import gsap from "gsap";
 
 export function SysInfoPanel() {
@@ -11,6 +12,7 @@ export function SysInfoPanel() {
   const loaderDone = useLoaderDone();
   const time=useClock();
   const uptime = useUpTime();
+  const { activityDots, stats: liveStats, statusText } = useGitHubData();
   
 
   useEffect(() => {
@@ -57,15 +59,15 @@ export function SysInfoPanel() {
           <div className="ml-4 space-y-1 text-gray-300">
             <div className="flex gap-2">
               <span className="text-emerald-500 w-16 shrink-0">OS</span>
-              <span>pfSense-SecCore v2.7</span>
+              <span>Linux &amp; Windows Server</span>
             </div>
             <div className="flex gap-2">
               <span className="text-emerald-500 w-16 shrink-0">Kernel</span>
-              <span>FreeBSD 14.0-RELEASE-p6</span>
+              <span>Ubuntu 22.04 LTS</span>
             </div>
             <div className="flex gap-2">
               <span className="text-emerald-500 w-16 shrink-0">Shell</span>
-              <span>tmux 3.4</span>
+              <span>bash 5.2 / PowerShell</span>
             </div>
             <div className="flex gap-2">
               <span className="text-emerald-500 w-16 shrink-0">Clock</span>
@@ -83,7 +85,7 @@ export function SysInfoPanel() {
               <span className="text-emerald-500 w-16 shrink-0">Status</span>
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-emerald-300">Monitoring Traffic</span>
+                <span className="text-emerald-300">{statusText}</span>
               </span>
             </div>
           </div>
@@ -118,7 +120,7 @@ export function SysInfoPanel() {
           <p className="text-emerald-400 mb-3">$ git log --activity</p>
           <div className="ml-4">
             <div className="grid grid-cols-[repeat(35,1fr)] gap-[3px]">
-              {activityDotsGenerator().map((level, i) => (
+              {activityDots.map((level, i) => (
                 <div
                   key={i}
                   className={`aspect-square rounded-[2px] ${dotColors[level]}`}
@@ -139,7 +141,7 @@ export function SysInfoPanel() {
         <div>
           <p className="text-emerald-400 mb-3">$ stats --projects</p>
           <div className="ml-4 grid grid-cols-3 gap-3">
-            {stats.map((stat) => (
+            {liveStats.map((stat) => (
               <div
                 key={stat.label}
                 className="bg-emerald-500/5 border border-emerald-500/20 rounded-md p-2 text-center"

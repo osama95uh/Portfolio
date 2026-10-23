@@ -29,7 +29,7 @@ const HeroTerminal = () => {
               </div>
               <div className="flex-1 text-center">
                 <span className="text-xs text-emerald-400/70 font-mono">
-                  NOC eng@portfolio:~
+                  it-network-eng@portfolio:~
                 </span>
               </div>
               <div className="w-14" />
@@ -68,7 +68,7 @@ const HeroTerminal = () => {
                     Siam Khan
                   </div>
                   <div className="text-gray-400 text-xs mt-0.5">
-                    Network Analyst [NOC]
+                    IT Support &amp; Network Engineer
                   </div>
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/30 rounded text-emerald-400">
