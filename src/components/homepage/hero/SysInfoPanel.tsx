@@ -128,7 +128,7 @@ export function SysInfoPanel() {
               ))}
             </div>
             <div className="flex justify-between mt-2 text-gray-600">
-              <span>5 weeks ago</span>
+              <span>*****</span>
               <span>today</span>
             </div>
           </div>

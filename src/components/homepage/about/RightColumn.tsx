@@ -19,7 +19,7 @@ export const RightColumn = ({ rightColRef }: RightColumnProps) => {
 
       <BioCard title="Beyond the screen">
         <p className="text-gray-400 leading-relaxed text-[15px]">
-          I love diving into <span className="text-gray-300">conspiracy theories</span>,
+          I like diving into <span className="text-gray-300">theories</span>,
           and I&apos;m a fan of <span className="text-gray-300">marvel cinematic stories</span>.
           I&apos;ve always been fascinated by how much of the past is still unknown.
         </p>

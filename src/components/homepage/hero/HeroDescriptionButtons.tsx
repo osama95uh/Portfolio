@@ -55,7 +55,7 @@ const HeroDesButtons = () => {
           </Link>
         </SheenCard>
         
-        {/* Resume download button temporarily disabled.
+        {/* Resume download button temporarily disabled. apadoto disable rakhsi pore on korbo
         <SheenCard>
           <Link
             href="/Sadnan_FullStack_Developer_CV.pdf"

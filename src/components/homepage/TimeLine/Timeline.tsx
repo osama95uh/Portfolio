@@ -4,13 +4,14 @@ import React, { useRef } from "react";
 import { TimelineNode } from "./TimelineNode";
 import { SkillCard } from "./SkillCard";
 import { EduCard } from "./EduCard";
+import { ProjectCard } from "./ProjectCard";
 
-import { education, skills } from "@/src/data/toolkit&edu";
+import { education, projectsResearch, skills } from "@/src/data/toolkit&edu";
 import { useGsapTimeline } from "@/src/animation/homepageAnimation/TimelineAnimation";
 import { buildTimelineNodes } from "./timelineUtils";
 
 interface TimelineProps {
-  activeTab: "skills" | "education";
+  activeTab: "skills" | "projects" | "education";
 }
 
 export function Timeline({ activeTab }: TimelineProps) {
@@ -20,7 +21,9 @@ export function Timeline({ activeTab }: TimelineProps) {
   const nodes =
     activeTab === "skills"
       ? buildTimelineNodes(skills)
-      : buildTimelineNodes(education);
+      : activeTab === "projects"
+        ? buildTimelineNodes(projectsResearch)
+        : buildTimelineNodes(education);
 
   useGsapTimeline(cardRefs, nodes, activeTab);
 
@@ -42,6 +45,8 @@ export function Timeline({ activeTab }: TimelineProps) {
               <TimelineNode side={side}>
                 {activeTab === "skills" ? (
                   <SkillCard {...(item as (typeof skills)[number])} />
+                ) : activeTab === "projects" ? (
+                  <ProjectCard {...(item as (typeof projectsResearch)[number])} />
                 ) : (
                   <EduCard {...(item as (typeof education)[number])} />
                 )}

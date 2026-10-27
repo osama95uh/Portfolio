@@ -6,7 +6,9 @@ import { Timeline } from "./Timeline";
 
 
 export default function TimelineSection() {
-  const [activeTab, setActiveTab] = useState<"skills" | "education">("skills");
+  const [activeTab, setActiveTab] = useState<
+    "skills" | "projects" | "education"
+  >("skills");
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
